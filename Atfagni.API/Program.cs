@@ -67,5 +67,10 @@ app.MapControllers(); // Si vous utilisez des Controllers
 app.MapUserEndpoints();
 app.MapRideEndpoints();
 app.MapBookingEndpoints();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();
