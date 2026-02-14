@@ -3,37 +3,42 @@ using Atfagni.API.Endpoints;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-// Ajoutez ces lignes pour dire à l'API d'utiliser PostgreSQL
+
+// --- SERVICES ---
+
+// 1. Ajouter la connexion PostgreSQL
+// (Render remplacera la connexion locale par la variable d'environnement automatiquement)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+// 2. Gestion des contrôleurs et JSON
+builder.Services.AddControllers();
+
+// 3. Configuration Swagger pour .NET 8 (L'ancienne méthode qui marche partout)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// --- MIDDLEWARE ---
+
+// Activer Swagger même en production (pour que vous puissiez tester sur Render)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-//app.UseHttpsRedirection();
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Atfagni API V1");
+    c.RoutePrefix = "swagger"; // L'interface sera sur /swagger
+});
 
-//app.UseAuthorization();
-
-//app.MapControllers();
 
 app.UseHttpsRedirection();
-// --- MAPPAGE DES MODULES (La Méthode Pro) ---
+app.UseAuthorization();
+
+// --- ROUTES ---
+app.MapControllers(); // Si vous utilisez des Controllers
+// OU vos endpoints Minimal API :
 app.MapUserEndpoints();
 app.MapRideEndpoints();
 app.MapBookingEndpoints();
-// Demain vous ajouterez : app.MapBookingEndpoints();
 
 app.Run();
-
