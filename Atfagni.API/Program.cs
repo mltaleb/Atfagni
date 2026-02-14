@@ -1,6 +1,7 @@
 using Atfagni.API.Data;
 using Atfagni.API.Endpoints;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +9,37 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. Ajouter la connexion PostgreSQL
 // (Render remplacera la connexion locale par la variable d'environnement automatiquement)
+// ... imports existants
+
+// --- CORRECTION DU FORMAT DE CONNEXION RENDER ---
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Si la chaîne commence par "postgres://", c'est une URL Render qu'il faut convertir
+if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("postgres://"))
+{
+    var databaseUri = new Uri(connectionString);
+    var userInfo = databaseUri.UserInfo.Split(':');
+
+    var builderDb = new NpgsqlConnectionStringBuilder
+    {
+        Host = databaseUri.Host,
+        Port = databaseUri.Port,
+        Username = userInfo[0],
+        Password = userInfo[1],
+        Database = databaseUri.LocalPath.TrimStart('/'),
+        SslMode = SslMode.Prefer, // Important pour Render
+        TrustServerCertificate = true
+    };
+
+    connectionString = builderDb.ToString();
+}
+// ------------------------------------------------
+
+// On injecte la chaîne corrigée
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
+
+// ... suite du code (AddControllers, etc.)
 
 // 2. Gestion des contrôleurs et JSON
 builder.Services.AddControllers();
