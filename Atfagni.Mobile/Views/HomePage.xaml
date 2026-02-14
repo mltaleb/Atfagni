@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels"
+             x:DataType="vm:HomeViewModel"
+             x:Class="Atfagni.Mobile.Views.HomePage"
+             Title="HomePage">
+    <!-- Exemple dans HomePage.xaml -->
+    <VerticalStackLayout Padding="20">
+        <Label Text="{Binding WelcomeMessage}" FontSize="20" />
+        <Label Text="{Binding DriverId}" FontSize="20"/>
+
+        <!-- Bouton visible UNIQUEMENT pour les Chauffeurs -->
+        <Button Text="PUBLIER UN TRAJET" 
+            IsVisible="{Binding IsDriver}"
+            Command="{Binding GoToPublishRideCommand}" 
+            BackgroundColor="Green" />
+        <Button Text="MES TRAJETS PUBLIÉS" 
+            IsVisible="{Binding IsDriver}"
+            Command="{Binding GoToMyRidesCommand}" 
+            BackgroundColor="Blue" />
+
+        <!-- Section visible UNIQUEMENT pour les Passagers -->
+        <VerticalStackLayout IsVisible="{Binding IsPassenger}">
+            <Label Text="Où voulez-vous aller ?" />
+            <Entry Placeholder="Destination (ex: Tindouf)" Text="{Binding SearchQuery}" />
+            <Button Text="RECHERCHER" Command="{Binding SearchCommand}" />
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

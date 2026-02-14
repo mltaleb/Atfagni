@@ -1,0 +1,55 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Rides"
+             x:DataType="vm:PublishRideViewModel"
+             x:Class="Atfagni.Mobile.Views.Rides.PublishRidePage">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label Text="Détails du voyage" FontAttributes="Bold" FontSize="18"/>
+            <Entry Placeholder="Départ (ex: Tindouf)" Text="{Binding StartLocation}" />
+            <Entry Placeholder="Arrivée (ex: Madrid)" Text="{Binding EndLocation}" />
+
+            <Label Text="Date et Heure" FontAttributes="Bold" Margin="0,10,0,0"/>
+            <HorizontalStackLayout Spacing="10">
+                <DatePicker Date="{Binding DepartureDate}" HorizontalOptions="FillAndExpand"/>
+                <TimePicker Time="{Binding DepartureTime}" HorizontalOptions="FillAndExpand"/>
+            </HorizontalStackLayout>
+
+            <Label Text="Options" FontAttributes="Bold" Margin="0,10,0,0"/>
+
+            <!-- Section Passagers -->
+            <Frame Padding="10">
+                <VerticalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Prendre des passagers ?" VerticalOptions="Center"/>
+                        <Switch IsToggled="{Binding AcceptsPassengers}" HorizontalOptions="EndAndExpand"/>
+                    </HorizontalStackLayout>
+
+                    <Grid ColumnDefinitions="*,*" IsVisible="{Binding AcceptsPassengers}">
+                        <Entry Grid.Column="0" Placeholder="Prix/Place" Text="{Binding PricePerSeat}" Keyboard="Numeric"/>
+                        <Entry Grid.Column="1" Placeholder="Nb Places" Text="{Binding TotalSeats}" Keyboard="Numeric"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Section Colis -->
+            <Frame Padding="10">
+                <VerticalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Prendre des colis ?" VerticalOptions="Center"/>
+                        <Switch IsToggled="{Binding AcceptsPackages}" HorizontalOptions="EndAndExpand"/>
+                    </HorizontalStackLayout>
+
+                    <VerticalStackLayout IsVisible="{Binding ShowPackageOptions}">
+                        <Entry Placeholder="Prix estimé par colis" Text="{Binding PricePerPackage}" Keyboard="Numeric"/>
+                        <Entry Placeholder="Description (ex: Max 20kg)" Text="{Binding PackageDescription}"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="PUBLIER LE TRAJET" Command="{Binding PublishCommand}" Margin="0,20,0,0" BackgroundColor="#2196F3"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

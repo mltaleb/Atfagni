@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Atfagni.API/Atfagni.API.csproj" />
+  <Project Path="Atfagni.Mobile/Atfagni.Mobile.csproj" Id="c2d359be-ada8-4e56-9159-601b6ddfa041" />
+  <Project Path="Atfagni.Shared/Atfagni.Shared.csproj" />
+</Solution>

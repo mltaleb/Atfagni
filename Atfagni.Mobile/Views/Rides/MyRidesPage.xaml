@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"            
+             xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Rides"
+             x:DataType="vm:MyRidesViewModel"
+             x:Class="Atfagni.Mobile.Views.Rides.MyRidesPage"
+             xmlns:dto="clr-namespace:Atfagni.Shared.DTOs;assembly=Atfagni.Shared"
+             Title="Mes Trajets Publiés">
+
+    <!-- RefreshView permet de tirer vers le bas pour rafraîchir -->
+    <RefreshView Command="{Binding LoadRidesCommand}">
+        <CollectionView ItemsSource="{Binding Rides}" Margin="10">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="dto:RideDto" >
+                    <Border Margin="0,5" Padding="15" >
+                        <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, Auto">
+
+                            <!-- Ligne 1 : Trajet -->
+                            <Label Grid.Row="0" Grid.Column="0" 
+                                   Text="{Binding StartLocation, StringFormat='{0} -> ...'}" 
+                                   FontAttributes="Bold" FontSize="18"  />
+                            <Label Grid.Row="0" Grid.Column="1" 
+                                   Text="{Binding Price, StringFormat='{0} DA'}" 
+                                   TextColor="Green" FontAttributes="Bold"/>
+
+                            <!-- Ligne 2 : Date et Statut -->
+                            <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="10">
+                                <Label Text="{Binding DepartureTime, StringFormat='{0:dd/MM HH:mm}'}" TextColor="Gray"/>
+                                <Label Text="{Binding Status}" TextColor="Blue"/>
+                            </HorizontalStackLayout>
+
+                            <!-- Ligne 3 : Boutons d'action -->
+                            <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                                                   HorizontalOptions="End" Spacing="15" Margin="0,10,0,0">
+
+                                <ImageButton Source="edit.png" HeightRequest="25" 
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyRidesViewModel}}, Path=EditRideCommand}"
+                                             CommandParameter="{Binding .}"/>
+
+                                <Button Text="Annuler" TextColor="Red" BackgroundColor="Transparent"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyRidesViewModel}}, Path=DeleteRideCommand}"
+                                        CommandParameter="{Binding .}"/>
+                            </HorizontalStackLayout>
+
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </RefreshView>
+</ContentPage>

@@ -1,0 +1,6 @@
+@Atfagni.API_HostAddress = http://localhost:5077
+
+GET {{Atfagni.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

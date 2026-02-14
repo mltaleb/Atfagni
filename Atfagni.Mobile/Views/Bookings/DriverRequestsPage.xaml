@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Bookings"
+              x:DataType="vm:DriverRequestsViewModel"
+             x:Class="Atfagni.Mobile.Views.Bookings.DriverRequestsPage"
+             Title="DriverRequestsPage">
+    <RefreshView Command="{Binding LoadRequestsCommand}">
+        <CollectionView ItemsSource="{Binding Requests}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="10" Padding="10" >
+                        <VerticalStackLayout>
+                            <Label Text="{Binding PassengerName}" FontAttributes="Bold" FontSize="18"/>
+
+                            <!-- Affiche "Colis" ou "Passager" -->
+                            <Label Text="{Binding Type}" TextColor="Blue" />
+
+                            <!-- Affiche la description seulement si c'est un colis -->
+                            <Label Text="{Binding PackageDescription}" IsVisible="{Binding PackageDescription, Converter={StaticResource IsNotNullConverter}}" FontAttributes="Italic"/>
+
+                            <Label Text="{Binding TripDescription}" TextColor="Gray"/>
+
+                            <HorizontalStackLayout Spacing="20" Margin="0,10,0,0">
+                                <Button Text="REFUSER" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverRequestsViewModel}}, Path=RejectCommand}" CommandParameter="{Binding .}" BackgroundColor="Red" />
+                                <Button Text="ACCEPTER" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverRequestsViewModel}}, Path=AcceptCommand}" CommandParameter="{Binding .}" BackgroundColor="Green" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </RefreshView>
+</ContentPage>
