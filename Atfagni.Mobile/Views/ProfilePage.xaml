@@ -1,0 +1,28 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels"
+             x:DataType="vm:ProfileViewModel"
+             x:Class="Atfagni.Mobile.Views.ProfilePage"
+             Title="Mon Profil">
+
+    <VerticalStackLayout Padding="20" Spacing="20">
+        <!-- Avatar (Image par défaut) -->
+        <Image Source="user_circle.png" HeightRequest="100" HorizontalOptions="Center"/>
+
+        <!-- Infos -->
+        <VerticalStackLayout Spacing="5">
+            <Label Text="{Binding UserName}" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center"/>
+            <Label Text="{Binding UserRole}" TextColor="#2196F3" HorizontalOptions="Center"/>
+            <Label Text="{Binding UserPhone}" TextColor="Gray" HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <BoxView HeightRequest="1" Color="LightGray" Margin="0,10"/>
+
+        <!-- Bouton Déconnexion -->
+        <Button Text="Se Déconnecter" 
+                BackgroundColor="#FF5252" 
+                TextColor="White"
+                Command="{Binding LogoutCommand}"
+                />
+    </VerticalStackLayout>
+</ContentPage>

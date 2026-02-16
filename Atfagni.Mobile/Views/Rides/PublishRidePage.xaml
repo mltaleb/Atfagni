@@ -2,53 +2,130 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Rides"
              x:DataType="vm:PublishRideViewModel"
-             x:Class="Atfagni.Mobile.Views.Rides.PublishRidePage">
+             x:Class="Atfagni.Mobile.Views.Rides.PublishRidePage"
+             Title="Publier un trajet"
+             BackgroundColor="#F5F5F5">
+    <!-- Fond gris pro -->
+
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+        <VerticalStackLayout Padding="20" Spacing="20">
 
-            <Label Text="Détails du voyage" FontAttributes="Bold" FontSize="18"/>
-            <Entry Placeholder="Départ (ex: Tindouf)" Text="{Binding StartLocation}" />
-            <Entry Placeholder="Arrivée (ex: Madrid)" Text="{Binding EndLocation}" />
+            <!-- 1. CARTE TRAJET (Départ / Arrivée) -->
+            <Border Stroke="Transparent" StrokeShape="RoundRectangle 15" BackgroundColor="White" Padding="15">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.05" Radius="10" Offset="0,5"/>
+                </Border.Shadow>
 
-            <Label Text="Date et Heure" FontAttributes="Bold" Margin="0,10,0,0"/>
-            <HorizontalStackLayout Spacing="10">
-                <DatePicker Date="{Binding DepartureDate}" HorizontalOptions="FillAndExpand"/>
-                <TimePicker Time="{Binding DepartureTime}" HorizontalOptions="FillAndExpand"/>
-            </HorizontalStackLayout>
+                <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="40, *" RowSpacing="10">
+                    <!-- Icones visuelles -->
+                    <Label Grid.Row="0" Grid.Column="0" Text="🟢" VerticalOptions="Center" HorizontalOptions="Center" FontSize="12"/>
+                    <BoxView Grid.Row="1" Grid.Column="0" WidthRequest="1" Color="LightGray" VerticalOptions="Fill" HorizontalOptions="Center"/>
+                    <Label Grid.Row="2" Grid.Column="0" Text="🔴" VerticalOptions="Center" HorizontalOptions="Center" FontSize="12"/>
 
-            <Label Text="Options" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <!-- Champs de saisie -->
+                    <Entry Grid.Row="0" Grid.Column="1" Placeholder="Lieu de départ (ex: Tindouf)" 
+                           Text="{Binding StartLocation}" FontAttributes="Bold" PlaceholderColor="Gray"/>
 
-            <!-- Section Passagers -->
-            <Frame Padding="10">
-                <VerticalStackLayout>
-                    <HorizontalStackLayout>
-                        <Label Text="Prendre des passagers ?" VerticalOptions="Center"/>
-                        <Switch IsToggled="{Binding AcceptsPassengers}" HorizontalOptions="EndAndExpand"/>
-                    </HorizontalStackLayout>
+                    <BoxView Grid.Row="1" Grid.Column="1" HeightRequest="1" Color="#F0F0F0"/>
 
-                    <Grid ColumnDefinitions="*,*" IsVisible="{Binding AcceptsPassengers}">
-                        <Entry Grid.Column="0" Placeholder="Prix/Place" Text="{Binding PricePerSeat}" Keyboard="Numeric"/>
-                        <Entry Grid.Column="1" Placeholder="Nb Places" Text="{Binding TotalSeats}" Keyboard="Numeric"/>
+                    <Entry Grid.Row="2" Grid.Column="1" Placeholder="Lieu d'arrivée (ex: Madrid)" 
+                           Text="{Binding EndLocation}" FontAttributes="Bold" PlaceholderColor="Gray"/>
+                </Grid>
+            </Border>
+
+            <!-- 2. DATE ET HEURE -->
+            <Border Stroke="Transparent" StrokeShape="RoundRectangle 15" BackgroundColor="White" Padding="15">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.05" Radius="10" Offset="0,5"/>
+                </Border.Shadow>
+                <Grid ColumnDefinitions="*,*">
+                    <VerticalStackLayout Grid.Column="0" Spacing="5">
+                        <Label Text="DATE" FontSize="10" TextColor="Gray" FontAttributes="Bold"/>
+                        <DatePicker Date="{Binding DepartureDate}" Format="dd/MM/yyyy" TextColor="#2196F3" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="5">
+                        <Label Text="HEURE" FontSize="10" TextColor="Gray" FontAttributes="Bold"/>
+                        <TimePicker Time="{Binding DepartureTime}" Format="HH:mm" TextColor="#2196F3" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- 3. CONFIGURATION (Passagers & Colis) -->
+            <Label Text="OPTIONS DU VOYAGE" FontSize="12" FontAttributes="Bold" TextColor="Gray" Margin="5,10,0,0"/>
+
+            <!-- Option Passagers -->
+            <Border Stroke="Transparent" StrokeShape="RoundRectangle 15" BackgroundColor="White" Padding="15">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.05" Radius="10" Offset="0,5"/>
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="👤" FontSize="20" VerticalOptions="Center"/>
+                            <Label Text="Accepter des passagers" VerticalOptions="Center" FontAttributes="Bold"/>
+                        </HorizontalStackLayout>
+                        <Switch Grid.Column="1" IsToggled="{Binding AcceptsPassengers}" OnColor="#2196F3"/>
+                    </Grid>
+
+                    <!-- Détails (Visible si activé) -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="15" IsVisible="{Binding AcceptsPassengers}">
+                        <VerticalStackLayout>
+                            <Label Text="PRIX / PLACE (DA/€)" FontSize="10" TextColor="Gray"/>
+                            <Entry Text="{Binding PricePerSeat}" Keyboard="Numeric" Placeholder="0" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1">
+                            <Label Text="PLACES DISPO" FontSize="10" TextColor="Gray"/>
+                            <Entry Text="{Binding TotalSeats}" Keyboard="Numeric" Placeholder="4" HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
                     </Grid>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
-            <!-- Section Colis -->
-            <Frame Padding="10">
-                <VerticalStackLayout>
-                    <HorizontalStackLayout>
-                        <Label Text="Prendre des colis ?" VerticalOptions="Center"/>
-                        <Switch IsToggled="{Binding AcceptsPackages}" HorizontalOptions="EndAndExpand"/>
-                    </HorizontalStackLayout>
+            <!-- Option Colis -->
+            <Border Stroke="Transparent" StrokeShape="RoundRectangle 15" BackgroundColor="White" Padding="15">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.05" Radius="10" Offset="0,5"/>
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="📦" FontSize="20" VerticalOptions="Center"/>
+                            <Label Text="Accepter des colis" VerticalOptions="Center" FontAttributes="Bold"/>
+                        </HorizontalStackLayout>
+                        <Switch Grid.Column="1" IsToggled="{Binding AcceptsPackages}" OnColor="#2196F3"/>
+                    </Grid>
 
-                    <VerticalStackLayout IsVisible="{Binding ShowPackageOptions}">
-                        <Entry Placeholder="Prix estimé par colis" Text="{Binding PricePerPackage}" Keyboard="Numeric"/>
-                        <Entry Placeholder="Description (ex: Max 20kg)" Text="{Binding PackageDescription}"/>
+                    <!-- Détails (Visible si activé) -->
+                    <VerticalStackLayout Spacing="10" IsVisible="{Binding ShowPackageOptions}">
+                        <BoxView HeightRequest="1" Color="#F0F0F0"/>
+                        <Grid ColumnDefinitions="*, 2*">
+                            <VerticalStackLayout>
+                                <Label Text="PRIX MOYEN" FontSize="10" TextColor="Gray"/>
+                                <Entry Text="{Binding PricePerPackage}" Keyboard="Numeric" Placeholder="ex: 1000"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Margin="10,0,0,0">
+                                <Label Text="DESCRIPTION / LIMITES" FontSize="10" TextColor="Gray"/>
+                                <Entry Text="{Binding PackageDescription}" Placeholder="ex: Max 20kg, pas de frigo"/>
+                            </VerticalStackLayout>
+                        </Grid>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
-            <Button Text="PUBLIER LE TRAJET" Command="{Binding PublishCommand}" Margin="0,20,0,0" BackgroundColor="#2196F3"/>
+            <!-- BOUTON D'ACTION -->
+            <Button Text="PUBLIER MAINTENANT" 
+                    Command="{Binding PublishCommand}" 
+                    BackgroundColor="#2196F3" 
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="25"
+                    HeightRequest="50"
+                    Margin="0,10,0,30">
+                <Button.Shadow>
+                    <Shadow Brush="#2196F3" Opacity="0.4" Radius="10" Offset="0,5"/>
+                </Button.Shadow>
+            </Button>
 
         </VerticalStackLayout>
     </ScrollView>

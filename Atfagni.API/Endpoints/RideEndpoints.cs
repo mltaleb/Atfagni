@@ -112,6 +112,45 @@ public static class RideEndpoints
             await db.SaveChangesAsync();
             return Results.Ok(new { Message = "Trajet annulé" });
         });
+        // RECHERCHE DE TRAJETS (Pour Passagers)
+        group.MapGet("/search", async (string? from, string? to, DateTime? date, AppDbContext db) =>
+        {
+            var query = db.Rides
+                .Include(r => r.Driver)
+                .Where(r => r.Status == RideStatus.Scheduled && r.AvailableSeats > 0);
+
+            // Filtres dynamiques
+            if (!string.IsNullOrWhiteSpace(from))
+                query = query.Where(r => r.StartLocation.ToLower().Contains(from.ToLower()));
+
+            if (!string.IsNullOrWhiteSpace(to))
+                query = query.Where(r => r.EndLocation.ToLower().Contains(to.ToLower()));
+
+            if (date.HasValue)
+            {
+                // On cherche les trajets du jour demandé (ignorer l'heure)
+                var searchDate = date.Value.Date;
+                query = query.Where(r => r.DepartureTime.Date == searchDate);
+            }
+
+            // On trie par date la plus proche
+            var rides = await query.OrderBy(r => r.DepartureTime)
+                .Select(r => new RideDto
+                {
+                    Id = r.Id,
+                    DriverName = r.Driver.FullName,
+                    StartLocation = r.StartLocation,
+                    EndLocation = r.EndLocation,
+                    DepartureTime = r.DepartureTime,
+                    Price = r.PricePerSeat,
+                    AvailableSeats = r.AvailableSeats,
+                    // Info importante pour le passager qui veut envoyer un colis
+                    AcceptsPackages = r.AcceptsPackages
+                })
+                .ToListAsync();
+
+            return Results.Ok(rides);
+        });
 
     }
 
@@ -136,6 +175,8 @@ public static class RideEndpoints
             // Trajet local (Camps, Tindouf, Zouerate, Nouadhibou...)
             return 100.0m; // 100 DA (ou montant local faible)
         }
+
     }
+
 
 }

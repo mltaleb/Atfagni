@@ -1,53 +1,84 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
+using Atfagni.Mobile.Services;
+using Atfagni.Shared.DTOs;
 
 namespace Atfagni.Mobile.ViewModels;
 
 public partial class HomeViewModel : ObservableObject
 {
-    [ObservableProperty]
-    private string welcomeMessage;
+    private readonly ApiService _apiService;
 
-    [ObservableProperty]
-    private bool isDriver;
+    // --- Gestion Rôles ---
+    [ObservableProperty] bool isDriver;
+    [ObservableProperty] bool isPassenger;
+    [ObservableProperty] string userName;
 
-    [ObservableProperty]
-    private bool isPassenger;
-    [ObservableProperty] private string driverId;
+    // --- Données Chauffeur ---
+    [ObservableProperty] DriverDashboardDto dashboardData;
 
-    public HomeViewModel()
+    // --- Données Passager (Recherche) ---
+    [ObservableProperty] string searchFrom;
+    [ObservableProperty] string searchTo;
+    [ObservableProperty] DateTime searchDate = DateTime.Today;
+    public ObservableCollection<RideDto> SearchResults { get; } = new();
+
+    public HomeViewModel(ApiService apiService)
     {
-        // On récupère les infos sauvegardées lors du Login
+        _apiService = apiService;
+        UserName = Preferences.Get("UserName", "Voyageur");
+
         string role = Preferences.Get("UserRole", "Passenger");
-        string name = Preferences.Get("UserName", "Voyageur");
-        string _driverId = Preferences.Get("UserId", "0");
-
-        WelcomeMessage = $"Bonjour, {name}";
-
-        // On définit les booléens pour le Binding IsVisible du XAML
         IsDriver = (role == "Driver");
-        IsPassenger = (role == "Passenger");
-        DriverId = _driverId;
+        IsPassenger = !IsDriver;
     }
+
     [RelayCommand]
-    private async Task Logout()
+    public async Task Initialize()
     {
-        // On efface tout ce qui est stocké
-        Preferences.Clear();
-
-        // On peut aussi utiliser Preferences.Remove("UserId") si on veut garder certains réglages
-
-        // On renvoie l'utilisateur à l'écran de Bienvenue
-        await Shell.Current.GoToAsync("MainPage");
+        if (IsDriver)
+        {
+            // Charger le Dashboard (Code précédent)
+            string id = Preferences.Get("UserId", "0");
+            DashboardData = await _apiService.GetDriverDashboardAsync(int.Parse(id));
+        }
+        else
+        {
+            // Pour le passager, on peut charger les trajets récents ou rien du tout
+        }
     }
+
     [RelayCommand]
-    async Task GoToPublishRide()
+    public async Task SearchRides()
+    {
+        if (string.IsNullOrWhiteSpace(SearchFrom) && string.IsNullOrWhiteSpace(SearchTo))
+        {
+            await Shell.Current.DisplayAlert("Erreur", "Indiquez au moins une ville.", "OK");
+            return;
+        }
+
+        var rides = await _apiService.SearchRidesAsync(SearchFrom, SearchTo, SearchDate);
+
+        SearchResults.Clear();
+        foreach (var r in rides) SearchResults.Add(r);
+
+        if (SearchResults.Count == 0)
+            await Shell.Current.DisplayAlertAsync("Info", "Aucun trajet trouvé.", "OK");
+    }
+
+    // Commande pour voir le détail (et réserver)
+    [RelayCommand]
+    async Task GoToRideDetail(RideDto ride)
+    {
+        // On passera l'objet Ride complet à la page suivante
+        var navParam = new Dictionary<string, object> { { "Ride", ride } };
+        await Shell.Current.GoToAsync("RideDetailPage", navParam);
+    }
+
+    [RelayCommand]
+    async Task GoToPublish()
     {
         await Shell.Current.GoToAsync("PublishRidePage");
-    }
-    [RelayCommand]
-    async Task GoToMyRides()
-    {
-        await Shell.Current.GoToAsync("MyRidesPage");
     }
 }

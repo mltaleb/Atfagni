@@ -5,14 +5,47 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Atfagni.Mobile"
     xmlns:views="clr-namespace:Atfagni.Mobile.Views"
-    Title="Atfagni.Mobile">
+    xmlns:vauth="clr-namespace:Atfagni.Mobile.Views.Auth"
+    xmlns:vrides="clr-namespace:Atfagni.Mobile.Views.Rides"
+    xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels"
+    Shell.FlyoutBehavior="Disabled">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
-    <ShellContent
-        Title="Accueil"
-        ContentTemplate="{DataTemplate views:HomePage}"
-        Route="HomePage" />
+    <!-- Couleurs -->
+    <Shell.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#2196F3</Color>
+            <Style x:Key="BaseStyle" TargetType="Element">
+                <Setter Property="Shell.BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="Shell.ForegroundColor" Value="White" />
+                <Setter Property="Shell.TitleColor" Value="White" />
+            </Style>
+        </ResourceDictionary>
+    </Shell.Resources>
+
+    <!-- Pages Hors Onglets (Navigation Stack) -->
+    <ShellContent Route="MainPage" ContentTemplate="{DataTemplate local:MainPage}" />
+    <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate vauth:LoginPage}" />
+    <ShellContent Route="RegisterPage" ContentTemplate="{DataTemplate vauth:RegisterPage}" />
+
+    <!-- BARRE D'ONGLETS -->
+    <TabBar Route="MainTabs">
+
+        <!-- Onglet 1 : Accueil (Pour tout le monde) -->
+        <Tab Title="Accueil" Icon="home.png">
+            <ShellContent Route="HomePage" ContentTemplate="{DataTemplate views:HomePage}" />
+        </Tab>
+
+        <!-- Onglet 2 : Mes Trajets (UNIQUEMENT POUR LES CHAUFFEURS) -->
+        <!-- La magie opère ici avec IsVisible -->
+        <Tab Title="Mes Trajets" Icon="car.png" IsVisible="{Binding IsDriver}">
+             
+            <ShellContent Route="MyRidesPage" ContentTemplate="{DataTemplate vrides:MyRidesPage}" />
+        </Tab>
+
+        <!-- Onglet 3 : Profil (J'ai corrigé la syntaxe {DataTemplate}) -->
+        <Tab Title="Profil" Icon="user.png">
+            <ShellContent Route="ProfilePage" ContentTemplate="{DataTemplate views:ProfilePage}" />
+        </Tab>
+
+    </TabBar>
 </Shell>

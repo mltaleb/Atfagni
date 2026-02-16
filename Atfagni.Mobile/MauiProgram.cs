@@ -44,6 +44,9 @@ namespace Atfagni.Mobile
             builder.Services.AddTransient<PublishRidePage>();
             builder.Services.AddTransient<MyRidesViewModel>();
             builder.Services.AddTransient<MyRidesPage>();
+            // Profil
+            builder.Services.AddTransient<ProfileViewModel>();
+            builder.Services.AddTransient<ProfilePage>();
 
             return builder.Build();
         }

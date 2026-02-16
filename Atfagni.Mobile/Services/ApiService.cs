@@ -12,7 +12,7 @@ public class ApiService
     public ApiService()
     {
        
-            BaseUrl = "http://localhost:5077"; // Émulateur Android
+            BaseUrl = "https://atfagni-api.onrender.com";
         
        
         _httpClient = new HttpClient { BaseAddress = new Uri(BaseUrl) };
@@ -145,6 +145,35 @@ public class ApiService
         }
         catch { return false; }
     }
+    public async Task<DriverDashboardDto?> GetDriverDashboardAsync(int driverId)
+    {
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<DriverDashboardDto>($"/api/users/driver/{driverId}/dashboard");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur Dashboard: {ex.Message}");
+            return null;
+        }
+    }
 
+    public async Task<List<RideDto>> SearchRidesAsync(string from, string to, DateTime? date)
+    {
+        try
+        {
+            // On construit l'URL avec les paramètres
+            string url = $"/api/rides/search?from={from}&to={to}";
+            if (date.HasValue)
+            {
+                url += $"&date={date.Value:yyyy-MM-dd}";
+            }
 
+            return await _httpClient.GetFromJsonAsync<List<RideDto>>(url) ?? new List<RideDto>();
+        }
+        catch
+        {
+            return new List<RideDto>();
+        }
+    }
 }

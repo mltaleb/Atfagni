@@ -1,6 +1,7 @@
 ﻿using Atfagni.API.Data;
 using Atfagni.API.Entities;
 using Atfagni.Shared.DTOs;
+using Atfagni.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Atfagni.API.Endpoints;
@@ -60,6 +61,47 @@ public static class UserEndpoints
                 Role = user.Role,
                 PhoneNumber = user.PhoneNumber,
                 WalletBalance = user.WalletBalance
+            });
+        });
+
+        // Dans UserEndpoints ou DashboardEndpoints
+
+        group.MapGet("/driver/{driverId}/dashboard", async (int driverId, AppDbContext db) =>
+        {
+            // 1. Récupérer le chauffeur
+            var user = await db.Users.FindAsync(driverId);
+            if (user == null) return Results.NotFound();
+
+            // 2. Compter les demandes en attente (Pending)
+            // On regarde les bookings liés aux trajets de ce chauffeur
+            var pendingCount = await db.Bookings
+                .Include(b => b.Ride)
+                .CountAsync(b => b.Ride.DriverId == driverId && b.Status == BookingStatus.Pending);
+
+            // 3. Trouver le prochain trajet (Futur et non annulé)
+            var nextRide = await db.Rides
+                .Where(r => r.DriverId == driverId && r.DepartureTime > DateTime.UtcNow && r.Status != RideStatus.Cancelled)
+                .OrderBy(r => r.DepartureTime)
+                .Select(r => new RideDto
+                {
+                    Id = r.Id,
+                    StartLocation = r.StartLocation,
+                    EndLocation = r.EndLocation,
+                    DepartureTime = r.DepartureTime,
+                    AvailableSeats = r.AvailableSeats,
+                    Status = r.Status
+                })
+                .FirstOrDefaultAsync();
+
+            // 4. Compter les trajets terminés
+            var completedCount = await db.Rides.CountAsync(r => r.DriverId == driverId && r.DepartureTime < DateTime.UtcNow);
+
+            return Results.Ok(new DriverDashboardDto
+            {
+                WalletBalance = user.WalletBalance,
+                PendingRequestsCount = pendingCount,
+                NextRide = nextRide,
+                CompletedRidesCount = completedCount
             });
         });
     }
