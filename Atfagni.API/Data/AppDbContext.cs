@@ -12,7 +12,7 @@ namespace Atfagni.API.Data
         public DbSet<Booking> Bookings { get; set; } // Ajouté
         public DbSet<CommissionRule> CommissionRules { get; set; } // Ajouté
         public DbSet<WalletTransaction> WalletTransactions { get; set; } // Ajouté
-
+        public DbSet<City> Cities { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

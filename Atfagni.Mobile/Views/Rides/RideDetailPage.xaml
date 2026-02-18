@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Rides"
+             x:DataType="vm:RideDetailViewModel"
+             x:Class="Atfagni.Mobile.Views.Rides.RideDetailPage"
+             Title="Details du voyage">
+    
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+                <!-- Carte Chauffeur -->
+                <Border StrokeThickness="0" BackgroundColor="White" Padding="15" StrokeShape="RoundRectangle 15">
+                    <HorizontalStackLayout Spacing="15">
+                        <Border StrokeShape="RoundRectangle 25" HeightRequest="50" WidthRequest="50" Padding="0">
+                            <Image Source="user_circle.png" Aspect="AspectFill"/>
+                        </Border>
+                        <VerticalStackLayout VerticalOptions="Center">
+                            <Label Text="{Binding Ride.DriverName}" FontAttributes="Bold" FontSize="18"/>
+                            <Label Text="Chauffeur vérifié ★ 4.8" TextColor="Gray" FontSize="12"/>
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Carte Trajet -->
+                <Border StrokeThickness="0" BackgroundColor="White" Padding="20" StrokeShape="RoundRectangle 15">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="{Binding Ride.DepartureTime, StringFormat='{0:dddd d MMMM à HH:mm}'}" 
+                           TextColor="#2196F3" FontAttributes="Bold"/>
+
+                        <Grid ColumnDefinitions="Auto, *, Auto">
+                            <Label Text="{Binding Ride.StartLocation}" FontSize="20" FontAttributes="Bold"/>
+                            <Label Grid.Column="1" Text="➝" HorizontalOptions="Center" FontSize="20" TextColor="Gray"/>
+                            <Label Grid.Column="2" Text="{Binding Ride.EndLocation}" FontSize="20" FontAttributes="Bold"/>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="#F0F0F0"/>
+
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
+                            <VerticalStackLayout HorizontalOptions="Center">
+                                <Label Text="PRIX" FontSize="10" HorizontalOptions="Center" TextColor="Gray"/>
+                                <Label Text="{Binding Ride.Price, StringFormat='{0} DA'}" FontSize="18" FontAttributes="Bold" TextColor="#2196F3"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout HorizontalOptions="Center">
+                                <Label Text="PLACES LIBRES" FontSize="10" HorizontalOptions="Center" TextColor="Gray"/>
+                                <Label Text="{Binding Ride.AvailableSeats}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Sélection de places -->
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
+                    <Label Text="Nombre de passagers :" VerticalOptions="Center" FontAttributes="Bold"/>
+                    <Stepper Minimum="1" Maximum="{Binding Ride.AvailableSeats}" Value="{Binding SeatsToBook}"/>
+                    <Label Text="{Binding SeatsToBook}" FontSize="20" VerticalOptions="Center" FontAttributes="Bold"/>
+                </HorizontalStackLayout>
+
+                <!-- Bouton Réserver -->
+                <Button Text="RÉSERVER MAINTENANT" 
+                    Command="{Binding ConfirmBookingCommand}"
+                    BackgroundColor="#2196F3" 
+                    TextColor="White" 
+                    FontAttributes="Bold" 
+                    HeightRequest="55" 
+                    CornerRadius="15"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+   
+</ContentPage>

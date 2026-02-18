@@ -7,6 +7,7 @@ using Atfagni.Mobile.Views;
 using Atfagni.Mobile.Views.Auth;
 using Atfagni.Mobile.Views.Bookings;
 using Atfagni.Mobile.Views.Rides;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 
 namespace Atfagni.Mobile
@@ -18,6 +19,7 @@ namespace Atfagni.Mobile
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -28,6 +30,8 @@ namespace Atfagni.Mobile
     		builder.Logging.AddDebug();
 #endif
             builder.Services.AddSingleton<ApiService>();
+            builder.Services.AddSingleton<CityService>();
+
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<MainViewModel>();
             builder.Services.AddTransient<RegisterViewModel>();
@@ -43,7 +47,12 @@ namespace Atfagni.Mobile
             builder.Services.AddTransient<PublishRideViewModel>();
             builder.Services.AddTransient<PublishRidePage>();
             builder.Services.AddTransient<MyRidesViewModel>();
-            builder.Services.AddTransient<MyRidesPage>();
+            builder.Services.AddTransient<MyRidesPage>();// Ajoutez ces lignes
+            builder.Services.AddTransient<ViewModels.Rides.BookingHistoryViewModel>();
+            builder.Services.AddTransient<Views.Rides.BookingHistoryPage>();
+            builder.Services.AddTransient<RideDetailViewModel>();
+            builder.Services.AddTransient<RideDetailPage>();
+
             // Profil
             builder.Services.AddTransient<ProfileViewModel>();
             builder.Services.AddTransient<ProfilePage>();

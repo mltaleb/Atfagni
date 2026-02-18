@@ -151,7 +151,30 @@ public static class RideEndpoints
 
             return Results.Ok(rides);
         });
-
+        // GET /api/cities
+        group.MapGet("/cities", async (AppDbContext db) =>
+    await db.Cities.OrderBy(c => c.Name).Select(c => c.Name).ToListAsync());
+        // GET /api/rides/latest
+        group.MapGet("/latest", async (AppDbContext db) =>
+        {
+            return await db.Rides
+                .Include(r => r.Driver)
+                .Where(r => r.Status == RideStatus.Scheduled && r.AvailableSeats > 0)
+                .OrderByDescending(r => r.Id) // Les plus récents en premier
+                .Take(10) // On en prend 10 par défaut
+                .Select(r => new RideDto
+                {
+                    Id = r.Id,
+                    DriverName = r.Driver.FullName,
+                    StartLocation = r.StartLocation,
+                    EndLocation = r.EndLocation,
+                    DepartureTime = r.DepartureTime,
+                    Price = r.PricePerSeat,
+                    AvailableSeats = r.AvailableSeats,
+                    AcceptsPackages = r.AcceptsPackages
+                })
+                .ToListAsync();
+        });
     }
 
     // FONCTION PRIVÉE POUR CALCULER LE PRIX DE TA COMMISSION
@@ -177,6 +200,7 @@ public static class RideEndpoints
         }
 
     }
+
 
 
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Atfagni.Mobile.Views.Rides.BookingHistoryPage"
+             xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Rides"
+             xmlns:dto="clr-namespace:Atfagni.Shared.DTOs;assembly=Atfagni.Shared"
+             Title="Historique Réservations" BackgroundColor="#F5F5F5"
+             >
+    
+        <RefreshView Command="{Binding LoadHistoryCommand}" IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding HistoryList}" Margin="15">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dto:BookingRequestDto">
+                        <Border Margin="0,5" Padding="15" BackgroundColor="White" StrokeShape="RoundRectangle 10" StrokeThickness="0">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout Spacing="5">
+                                    <Label Text="{Binding PassengerName}" FontAttributes="Bold" FontSize="16"/>
+                                    <Label Text="{Binding TripDescription}" TextColor="Gray" FontSize="12"/>
+                                    <Label Text="{Binding Type}" TextColor="#2196F3" FontSize="12"/>
+                                </VerticalStackLayout>
+
+                                <!-- Statut (Utilisation de l'astuce PackageDescription = Status) -->
+                                <!-- Idéalement, faire un vrai champ Status dans le DTO -->
+                                <Label Grid.Column="1" Text="{Binding PackageDescription}" 
+                                   VerticalOptions="Center" FontAttributes="Bold" TextColor="Gray"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </ContentPage>

@@ -187,4 +187,45 @@ public class ApiService
             return new List<RideDto>();
         }
     }
+    public async Task<List<RideDto>> GetLatestRidesAsync()
+    {
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<List<RideDto>>("/api/rides/latest")
+                   ?? new List<RideDto>();
+        }
+        catch { return new List<RideDto>(); }
+    }
+    public async Task<List<string>> GetCitiesAsync()
+    {
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<List<string>>("/api/rides/cities")
+                   ?? new List<string>();
+        }
+        catch { return new List<string>(); }
+    }
+    public async Task<List<BookingRequestDto>> GetBookingHistoryAsync(int driverId)
+    {
+        try
+        {
+            // Option pour ignorer la casse (camelCase vs PascalCase)
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            // Appel à l'API
+            var result = await _httpClient.GetFromJsonAsync<List<BookingRequestDto>>(
+                $"/api/bookings/driver/{driverId}/history",
+                options);
+
+            return result ?? new List<BookingRequestDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur Historique: {ex.Message}");
+            return new List<BookingRequestDto>(); // Retourne liste vide pour ne pas crasher
+        }
+    }
 }

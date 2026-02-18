@@ -19,6 +19,8 @@ namespace Atfagni.Mobile
             Routing.RegisterRoute("PublishRidePage", typeof(PublishRidePage));
             Routing.RegisterRoute("DriverRequestPage", typeof(DriverRequestsPage));
             Routing.RegisterRoute("MyRidesPage", typeof(MyRidesPage));
+            // Ajoutez la route pour la navigation
+            Routing.RegisterRoute("BookingHistoryPage", typeof(Views.Rides.BookingHistoryPage));
         }
     }
 }
