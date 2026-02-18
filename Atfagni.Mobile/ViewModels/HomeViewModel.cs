@@ -57,6 +57,7 @@ public partial class HomeViewModel : ObservableObject
     [RelayCommand]
     public async Task Initialize()
     {
+       
         // On ne charge le dashboard que si c'est un chauffeur
         if (IsDriver)
         {

@@ -159,7 +159,7 @@ public static class RideEndpoints
         {
             return await db.Rides
                 .Include(r => r.Driver)
-                .Where(r => r.Status == RideStatus.Scheduled && r.AvailableSeats > 0)
+                //.Where(r => r.Status == RideStatus.Scheduled && r.AvailableSeats > 0)
                 .OrderByDescending(r => r.Id) // Les plus récents en premier
                 .Take(10) // On en prend 10 par défaut
                 .Select(r => new RideDto
