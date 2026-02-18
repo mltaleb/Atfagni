@@ -17,8 +17,8 @@ namespace Atfagni.API.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Booking>()
-        .Property(b => b.Status)
-        .HasConversion<string>(); // Stocke "Pending" au lieu de 0
+            .Property(b => b.Status)
+            .HasConversion<string>(); // Stocke "Pending" au lieu de 0
 
             modelBuilder.Entity<Booking>()
                 .Property(b => b.Type)
