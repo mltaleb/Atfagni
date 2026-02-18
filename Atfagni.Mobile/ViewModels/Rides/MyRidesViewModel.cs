@@ -51,4 +51,10 @@ public partial class MyRidesViewModel : ObservableObject
         await Shell.Current.DisplayAlertAsync("Info", "La modification sera disponible dans la prochaine version. Veuillez supprimer et recréer si besoin.", "OK");
         // Pour faire l'edit, il faudrait naviguer vers PublishRidePage avec les données pré-remplies.
     }
+    [RelayCommand]
+    private async Task GoToPublish()
+    {
+        // On navigue vers la page de publication
+        await Shell.Current.GoToAsync("PublishRidePage");
+    }
 }

@@ -5,11 +5,13 @@
              xmlns:dto="clr-namespace:Atfagni.Shared.DTOs;assembly=Atfagni.Shared"
              x:DataType="vm:HomeViewModel"
              x:Class="Atfagni.Mobile.Views.HomePage"
+             xmlns:converters="clr-namespace:Atfagni.Mobile.Converters"
              Title="Atfagni"
              BackgroundColor="#F8F9FA">
     <!-- Fond gris très léger Pro -->
-
+   
     <ContentPage.Resources>
+        <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
         <!-- Un petit convertisseur pour inverser les booléens si besoin -->
         <Style TargetType="Border">
             <Setter Property="StrokeShape" Value="RoundRectangle 15"/>
@@ -25,95 +27,89 @@
         <!-- ============================================= -->
         <!-- VUE CHAUFFEUR (Dashboard) -->
         <!-- ============================================= -->
-        <RefreshView IsVisible="{Binding IsDriver}" 
-                     Command="{Binding LoadDashboardCommand}" 
-                     IsRefreshing="{Binding IsBusy}">
+        <!-- DANS LA VUE CHAUFFEUR -->
+        <ScrollView IsVisible="{Binding IsDriver}">
+            <VerticalStackLayout Padding="20" Spacing="25">
 
-            <ScrollView>
-                <VerticalStackLayout Padding="20" Spacing="20">
-
-                    <!-- 1. EN-TÊTE -->
-                    <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                        <VerticalStackLayout Spacing="2">
-                            <Label Text="Salam Alaykoum," TextColor="Gray" FontSize="14"/>
-                            <Label Text="{Binding DriverName}" TextColor="#111" FontSize="26" FontAttributes="Bold"/>
-                        </VerticalStackLayout>
-
-                        <Border Grid.Column="1" HeightRequest="50" WidthRequest="50" Padding="0" StrokeShape="RoundRectangle 25">
-                            <Image Source="user_circle.png" Aspect="AspectFill"/>
-                        </Border>
-                    </Grid>
-
-                    <!-- 2. STATS (Cartes colorées) -->
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                        <!-- Solde -->
-                        <Border Grid.Column="0" BackgroundColor="#2196F3">
-                            <VerticalStackLayout Spacing="5">
-                                <Label Text="Mon Solde" TextColor="White" Opacity="0.9" FontSize="12"/>
-                                <Label Text="{Binding DashboardData.WalletBalance, StringFormat='{0} DA'}" 
-                                       TextColor="White" FontSize="22" FontAttributes="Bold"/>
-                            </VerticalStackLayout>
-                        </Border>
-
-                        <!-- Voyages -->
-                        <Border Grid.Column="1">
-                            <VerticalStackLayout Spacing="5">
-                                <Label Text="Total Voyages" TextColor="Gray" FontSize="12"/>
-                                <Label Text="{Binding DashboardData.CompletedRidesCount}" 
-                                       TextColor="#333" FontSize="22" FontAttributes="Bold"/>
-                            </VerticalStackLayout>
-                        </Border>
-                    </Grid>
-
-                    <!-- 3. ACTIONS RAPIDES -->
-                    <Label Text="Actions" FontAttributes="Bold" TextColor="Gray" Margin="0,5,0,0"/>
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                        <Button Text="+ PUBLIER" Command="{Binding GoToPublishCommand}"
-                                BackgroundColor="#4CAF50" TextColor="White" FontAttributes="Bold" CornerRadius="12" HeightRequest="50"/>
-
-                        <Button Grid.Column="1" Text="DEMANDES" Command="{Binding GoToRequestsCommand}"
-                                BackgroundColor="White" TextColor="#2196F3" BorderColor="#2196F3" BorderWidth="1" 
-                                FontAttributes="Bold" CornerRadius="12" HeightRequest="50"/>
-
-                        <!-- Badge notification (rouge) -->
-                        <Border Grid.Column="1" BackgroundColor="Red" Padding="0" HeightRequest="22" WidthRequest="22" 
-                                HorizontalOptions="End" VerticalOptions="Start" Margin="0,-8,-8,0" StrokeShape="RoundRectangle 11"
-                                IsVisible="{Binding DashboardData.PendingRequestsCount}">
-                            <!-- Si > 0, c'est visible (trick implicite) -->
-                            <Label Text="{Binding DashboardData.PendingRequestsCount}" TextColor="White" 
-                                   FontSize="11" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        </Border>
-                    </Grid>
-
-                    <!-- 4. PROCHAIN DÉPART -->
-                    <Label Text="Prochain Départ" FontAttributes="Bold" TextColor="Gray" Margin="0,5,0,0" IsVisible="{Binding HasNextRide}"/>
-
-                    <!-- Carte du trajet -->
-                    <Border IsVisible="{Binding HasNextRide}">
-                        <Grid RowDefinitions="Auto, Auto" RowSpacing="10">
-                            <Label Text="{Binding DashboardData.NextRide.DepartureTime, StringFormat='{0:dddd d MMMM à HH:mm}'}" 
-                                   TextColor="#2196F3" FontAttributes="Bold" FontSize="14"/>
-
-                            <Grid Grid.Row="1" ColumnDefinitions="Auto, *, Auto" VerticalOptions="Center">
-                                <Label Grid.Column="0" Text="{Binding DashboardData.NextRide.StartLocation}" FontSize="18" FontAttributes="Bold" TextColor="#333"/>
-                                <Label Grid.Column="1" Text="➝" HorizontalOptions="Center" TextColor="#CCC" FontSize="20"/>
-                                <Label Grid.Column="2" Text="{Binding DashboardData.NextRide.EndLocation}" FontSize="18" FontAttributes="Bold" TextColor="#333"/>
-                            </Grid>
-                        </Grid>
-                    </Border>
-
-                    <!-- Message vide -->
-                    <VerticalStackLayout IsVisible="{Binding HasNextRide, Converter={StaticResource InvertedBoolConverter}}" 
-                                         Spacing="10" Padding="20">
-                        <Label Text="💤" FontSize="40" HorizontalOptions="Center"/>
-                        <Label Text="Aucun trajet prévu." HorizontalOptions="Center" TextColor="Gray"/>
-                        <Label Text="Publiez votre prochain voyage !" HorizontalOptions="Center" TextColor="#2196F3" FontAttributes="Bold"/>
+                <!-- 1. EN-TÊTE SIMPLIFIÉ (Solde uniquement) -->
+                <Grid ColumnDefinitions="*, Auto">
+                    <VerticalStackLayout>
+                        <Label Text="Mon Solde Actuel" TextColor="Gray" FontSize="12"/>
+                        <Label Text="{Binding DashboardData.WalletBalance, StringFormat='{0} DA'}" 
+                       TextColor="{Binding DashboardData.WalletBalance}" 
+                       FontSize="30" FontAttributes="Bold"/>
                     </VerticalStackLayout>
 
-                </VerticalStackLayout>
-            </ScrollView>
-        </RefreshView>
+                    <!-- Avatar -->
+                    <Border Grid.Column="1" StrokeShape="RoundRectangle 25" HeightRequest="50" WidthRequest="50" Padding="0">
+                        <Image Source="user_circle.png" Aspect="AspectFill"/>
+                    </Border>
+                </Grid>
 
+                <!-- 2. PROCHAIN DÉPART (Le Contexte) -->
+                <Border BackgroundColor="#2196F3" StrokeThickness="0" Padding="20">
+                    <Grid RowDefinitions="Auto, Auto" RowSpacing="10">
+                        <Label Text="🚀 PROCHAIN DÉPART" TextColor="White" FontSize="10" FontAttributes="Bold" Opacity="0.8"/>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="Auto, *, Auto">
+                            <Label Text="{Binding DashboardData.NextRide.StartLocation}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                            <Label Grid.Column="1" Text="➝" TextColor="White" HorizontalOptions="Center" FontSize="20" Opacity="0.6"/>
+                            <Label Grid.Column="2" Text="{Binding DashboardData.NextRide.EndLocation}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                        </Grid>
+
+                        <Label Grid.Row="2" Text="{Binding DashboardData.NextRide.DepartureTime}" TextColor="White" HorizontalOptions="Center" FontAttributes="Bold"/>
+                    </Grid>
+                </Border>
+
+                <!-- 3. LISTE D'EMBARQUEMENT (Le Cœur du système) -->
+                <Label Text="Passagers à valider" FontAttributes="Bold" TextColor="Gray" Margin="0,10,0,0"/>
+
+                <CollectionView ItemsSource="{Binding PassengersToBoard}">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Spacing="10" Padding="30">
+                            <Label Text="✅" FontSize="40" HorizontalOptions="Center"/>
+                            <Label Text="Tout le monde est à bord !" HorizontalOptions="Center" TextColor="Gray"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="dto:BookingRequestDto">
+                            <Border Margin="0,5" Padding="15" BackgroundColor="White" StrokeThickness="0">
+                                <Grid ColumnDefinitions="50, *, Auto">
+
+                                    <!-- Type (Passager ou Colis) -->
+                                    <Border Grid.Column="0" BackgroundColor="#E3F2FD" HeightRequest="40" WidthRequest="40" StrokeShape="RoundRectangle 20" HorizontalOptions="Start">
+                                        <Label Text="{Binding Type, Converter={StaticResource TypeToIconConverter}}" 
+                                       HorizontalOptions="Center" VerticalOptions="Center" FontSize="18"/>
+                                    </Border>
+
+                                    <!-- Infos -->
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="10,0">
+                                        <Label Text="{Binding PassengerName}" FontAttributes="Bold" FontSize="16"/>
+                                        <Label Text="{Binding PassengerPhone}" TextColor="Gray" FontSize="12"/>
+                                        <!-- Description colis si existe -->
+                                        <Label Text="{Binding PackageDescription}" TextColor="#2196F3" FontSize="11" IsVisible="{Binding PackageDescription, Converter={StaticResource StringNotEmptyConverter}}"/>
+                                    </VerticalStackLayout>
+
+                                    <!-- BOUTON VALIDER -->
+                                    <Button Grid.Column="2" Text="VALIDER" 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=ValidatePassengerCommand}"
+                                    CommandParameter="{Binding .}"
+                                    FontSize="12" FontAttributes="Bold"
+                                    BackgroundColor="#4CAF50" TextColor="White"
+                                    HeightRequest="40" CornerRadius="20"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Bouton Publier (plus petit, en bas) -->
+                <Button Text="+ Nouveau Trajet" Command="{Binding GoToPublishCommand}" 
+                BackgroundColor="Transparent" TextColor="#2196F3" Margin="0,20"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
 
         <!-- ============================================= -->
         <!-- VUE PASSAGER (Recherche) -->

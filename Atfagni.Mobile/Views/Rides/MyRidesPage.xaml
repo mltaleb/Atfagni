@@ -1,51 +1,98 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"            
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Rides"
+             xmlns:dto="clr-namespace:Atfagni.Shared.DTOs;assembly=Atfagni.Shared"
              x:DataType="vm:MyRidesViewModel"
              x:Class="Atfagni.Mobile.Views.Rides.MyRidesPage"
-             xmlns:dto="clr-namespace:Atfagni.Shared.DTOs;assembly=Atfagni.Shared"
-             Title="Mes Trajets Publiés">
+             Title="Mes Trajets"
+             BackgroundColor="#F5F5F5">
 
-    <!-- RefreshView permet de tirer vers le bas pour rafraîchir -->
-    <RefreshView Command="{Binding LoadRidesCommand}">
-        <CollectionView ItemsSource="{Binding Rides}" Margin="10">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="dto:RideDto" >
-                    <Border Margin="0,5" Padding="15" >
-                        <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, Auto">
+    <Grid>
+        <!-- 1. LA LISTE DES TRAJETS -->
+        <RefreshView Command="{Binding LoadRidesCommand}" IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding Rides}" Margin="15,0">
+                <CollectionView.Header>
+                    <Label Text="Vos publications" FontSize="14" TextColor="Gray" Margin="0,15"/>
+                </CollectionView.Header>
 
-                            <!-- Ligne 1 : Trajet -->
-                            <Label Grid.Row="0" Grid.Column="0" 
-                                   Text="{Binding StartLocation, StringFormat='{0} -> ...'}" 
-                                   FontAttributes="Bold" FontSize="18"  />
-                            <Label Grid.Row="0" Grid.Column="1" 
-                                   Text="{Binding Price, StringFormat='{0} DA'}" 
-                                   TextColor="Green" FontAttributes="Bold"/>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                        <Label Text="📭" FontSize="50"/>
+                        <Label Text="Aucun trajet publié." TextColor="Gray"/>
+                        <Label Text="Appuyez sur + pour commencer" TextColor="#2196F3"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
 
-                            <!-- Ligne 2 : Date et Statut -->
-                            <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="10">
-                                <Label Text="{Binding DepartureTime, StringFormat='{0:dd/MM HH:mm}'}" TextColor="Gray"/>
-                                <Label Text="{Binding Status}" TextColor="Blue"/>
-                            </HorizontalStackLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dto:RideDto">
+                        <!-- CARTE TYPE "TICKET" -->
+                        <Border Margin="0,0,0,15" StrokeShape="RoundRectangle 15" StrokeThickness="0" BackgroundColor="White" Padding="0">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Opacity="0.05" Radius="5" Offset="0,2"/>
+                            </Border.Shadow>
 
-                            <!-- Ligne 3 : Boutons d'action -->
-                            <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
-                                                   HorizontalOptions="End" Spacing="15" Margin="0,10,0,0">
+                            <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="8, *">
+                                <!-- Barre de couleur latérale (Statut) -->
+                                <!-- Tu pourras changer la couleur via un Converter plus tard (Vert=Scheduled, Gris=Finished) -->
+                                <BoxView Grid.RowSpan="3" Grid.Column="0" Color="#2196F3"/>
 
-                                <ImageButton Source="edit.png" HeightRequest="25" 
-                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyRidesViewModel}}, Path=EditRideCommand}"
-                                             CommandParameter="{Binding .}"/>
+                                <!-- Contenu -->
+                                <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*, Auto" Padding="15,15,15,5">
+                                    <Label Text="{Binding DepartureTime, StringFormat='{0:ddd d MMM à HH:mm}'}" 
+                                           TextColor="#2196F3" FontAttributes="Bold" FontSize="12"/>
+                                    <Label Grid.Column="1" Text="{Binding Price, StringFormat='{0} DA'}" 
+                                           FontAttributes="Bold" FontSize="16" TextColor="Black"/>
+                                </Grid>
 
-                                <Button Text="Annuler" TextColor="Red" BackgroundColor="Transparent"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyRidesViewModel}}, Path=DeleteRideCommand}"
-                                        CommandParameter="{Binding .}"/>
-                            </HorizontalStackLayout>
+                                <!-- Trajet Visuel -->
+                                <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto, Auto" ColumnDefinitions="20, *" Padding="15,5">
+                                    <!-- Ligne verticale -->
+                                    <BoxView Grid.RowSpan="2" Grid.Column="0" WidthRequest="1" Color="LightGray" HorizontalOptions="Center" VerticalOptions="Fill" Margin="0,8"/>
 
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-    </RefreshView>
+                                    <!-- Départ -->
+                                    <Label Grid.Row="0" Grid.Column="0" Text="🟢" FontSize="8" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding StartLocation}" FontSize="16" FontAttributes="Bold" TextColor="#333" Margin="5,0,0,10"/>
+
+                                    <!-- Arrivée -->
+                                    <Label Grid.Row="1" Grid.Column="0" Text="🔴" FontSize="8" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding EndLocation}" FontSize="16" FontAttributes="Bold" TextColor="#333" Margin="5,0,0,0"/>
+                                </Grid>
+
+                                <!-- Actions (Footer) -->
+                                <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*, Auto" Padding="15,10">
+                                    <Label Text="{Binding Status}" VerticalOptions="Center" TextColor="Gray" FontSize="12" FontAttributes="Italic"/>
+
+                                    <!-- Bouton Supprimer discret -->
+                                    <Button Grid.Column="1" Text="Annuler" TextColor="#FF5252" BackgroundColor="Transparent" 
+                                            FontSize="12" HeightRequest="30" Padding="0"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyRidesViewModel}}, Path=DeleteRideCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- 2. LE BOUTON FLOTTANT (FAB) -->
+        <!-- Placé en bas à droite grâce aux Options -->
+        <Button Text="+" 
+                Command="{Binding GoToPublishCommand}"
+                BackgroundColor="#2196F3" 
+                TextColor="White" 
+                FontSize="30"
+                CornerRadius="30"
+                HeightRequest="60" 
+                WidthRequest="60"
+                HorizontalOptions="End" 
+                VerticalOptions="End"
+                Margin="20">
+            <Button.Shadow>
+                <Shadow Brush="#000" Opacity="0.3" Radius="10" Offset="0,5"/>
+            </Button.Shadow>
+        </Button>
+
+    </Grid>
 </ContentPage>

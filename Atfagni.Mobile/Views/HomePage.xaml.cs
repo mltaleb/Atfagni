@@ -1,16 +1,16 @@
-using Atfagni.Mobile.ViewModels;
-
 namespace Atfagni.Mobile.Views;
 
 public partial class HomePage : ContentPage
 {
-    readonly HomeViewModel _viewModel;
-	public HomePage(HomeViewModel ViewModel)
-	{
-        _viewModel = ViewModel;
-		InitializeComponent();
-		BindingContext = ViewModel;
-	}
+    private readonly ViewModels.HomeViewModel _viewModel;
+
+    public HomePage(ViewModels.HomeViewModel viewModel)
+    {
+        InitializeComponent();
+        _viewModel = viewModel;
+        BindingContext = _viewModel;
+    }
+
     // Cette méthode est appelée à chaque fois que la page devient visible
     protected override async void OnAppearing()
     {

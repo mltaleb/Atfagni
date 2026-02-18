@@ -16,7 +16,18 @@ namespace Atfagni.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Booking>()
+        .Property(b => b.Status)
+        .HasConversion<string>(); // Stocke "Pending" au lieu de 0
 
+            modelBuilder.Entity<Booking>()
+                .Property(b => b.Type)
+                .HasConversion<string>(); // Stocke "Passenger" au lieu de 0
+
+            // Pour la table Rides : Convertir l'Enum en String
+            modelBuilder.Entity<Ride>()
+                .Property(r => r.Status)
+                .HasConversion<string>();
             // Exemple de règle : Un utilisateur a plusieurs transactions
             modelBuilder.Entity<User>()
                 .HasMany<WalletTransaction>()

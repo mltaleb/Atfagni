@@ -1,6 +1,7 @@
 ﻿using Atfagni.Shared.DTOs;
 using System.Diagnostics;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Atfagni.Mobile.Services;
 
@@ -149,7 +150,17 @@ public class ApiService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<DriverDashboardDto>($"/api/users/driver/{driverId}/dashboard");
+            // 1. On configure les options pour ignorer la casse (majuscule/minuscule)
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            // 2. On passe ces options à la méthode GetFromJsonAsync
+            return await _httpClient.GetFromJsonAsync<DriverDashboardDto>(
+                $"/api/users/driver/{driverId}/dashboard",
+                options // <--- C'EST ICI LA CLÉ
+            );
         }
         catch (Exception ex)
         {
