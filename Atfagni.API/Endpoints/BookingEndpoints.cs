@@ -88,5 +88,29 @@ public static class BookingEndpoints
             await db.SaveChangesAsync();
             return Results.Ok(new { Status = booking.Status.ToString() });
         });
+        // 4. HISTORIQUE COMPLET DES RÉSERVATIONS (Pour le chauffeur)
+        group.MapGet("/driver/{driverId}/history", async (int driverId, AppDbContext db) =>
+        {
+            var history = await db.Bookings
+                .Include(b => b.Passenger)
+                .Include(b => b.Ride)
+                .Where(b => b.Ride.DriverId == driverId)
+                .OrderByDescending(b => b.BookedAt) // Les plus récents en premier
+                .Select(b => new BookingRequestDto
+                {
+                    Id = b.Id,
+                    PassengerName = b.Passenger.FullName,
+                    PassengerPhone = b.Passenger.PhoneNumber,
+                    Type = b.Type.ToString(),
+                    SeatsRequested = b.SeatsBooked,
+                    TripDescription = $"{b.Ride.StartLocation} -> {b.Ride.EndLocation}",
+                    // On ajoute une propriété 'StatusString' au DTO si besoin, 
+                    // ou on utilise un champ existant pour afficher "Accepted", "Rejected"...
+                    PackageDescription = b.Status.ToString() // Astuce rapide pour afficher le statut
+                })
+                .ToListAsync();
+
+            return Results.Ok(history);
+        });
     }
 }
