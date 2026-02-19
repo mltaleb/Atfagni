@@ -144,6 +144,30 @@ public partial class HomeViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+
+    public async Task GetLatestRides()
+    {
+        try
+        {
+            IsBusy = true;
+            var latest = await _apiService.GetLatestRidesAsync();
+            SearchResults.Clear();
+            foreach (var r in latest)
+            {
+                SearchResults.Add(r);
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Erreur", "Serveur injoignable.", "OK");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     // --- NAVIGATION ---
 
     [RelayCommand]

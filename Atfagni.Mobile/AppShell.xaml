@@ -42,7 +42,7 @@
              
             <ShellContent Route="MyRidesPage" ContentTemplate="{DataTemplate vrides:MyRidesPage}" />
         </Tab>
-        <Tab Title="Mes Trajets" Icon="car.png" IsVisible="{Binding IsPassenger}">
+        <Tab Title="Réservations" Icon="car.png" IsVisible="{Binding IsPassager}">
 
             <ShellContent Route="MyRidesPage" ContentTemplate="{DataTemplate vbookings:MyBookingsPage}" />
         </Tab>

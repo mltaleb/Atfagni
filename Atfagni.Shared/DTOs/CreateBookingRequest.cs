@@ -7,7 +7,7 @@ namespace Atfagni.Shared.DTOs
         public int RideId { get; set; }
         public int PassengerId { get; set; }
         public int Seats { get; set; }
-        public BookingType Type { get; set; } // Enum: Passenger ou Package
-        public string? PackageDescription { get; set; } // Optionnel
+        public BookingType Type { get; set; } // Passenger ou Package
+        public string? PackageDescription { get; set; } // La description tapée par l'user
     }
 }
