@@ -228,4 +228,26 @@ public class ApiService
             return new List<BookingRequestDto>(); // Retourne liste vide pour ne pas crasher
         }
     }
+    public async Task<List<BookingRequestDto>> GetPassengerBookingsAsync(int passengerId)
+    {
+        try
+        {
+            // Indispensable pour éviter les listes vides (Casse JSON)
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            var response = await _httpClient.GetFromJsonAsync<List<BookingRequestDto>>(
+                $"/api/bookings/passenger/{passengerId}",
+                options);
+
+            return response ?? new List<BookingRequestDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur API Bookings: {ex.Message}");
+            return new List<BookingRequestDto>();
+        }
+    }
 }

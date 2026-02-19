@@ -112,5 +112,29 @@ public static class BookingEndpoints
 
             return Results.Ok(history);
         });
+        // 5. RÉSERVATIONS D'UN PASSAGER (Historique + À venir)
+        group.MapGet("/passenger/{passengerId}", async (int passengerId, AppDbContext db) =>
+        {
+            var bookings = await db.Bookings
+                .Include(b => b.Ride)
+                .ThenInclude(r => r.Driver) // Pour avoir le nom du chauffeur
+                .Where(b => b.PassengerId == passengerId)
+                .OrderByDescending(b => b.Ride.DepartureTime) // Trier par date de voyage
+                .Select(b => new BookingRequestDto
+                {
+                    Id = b.Id,
+                    // Pour le passager, on met le nom du CHAUFFEUR dans le champ PassengerName du DTO
+                    PassengerName = b.Ride.Driver.FullName,
+                    PassengerPhone = b.Ride.Driver.PhoneNumber,
+                    Type = b.Type.ToString(),
+                    SeatsRequested = b.SeatsBooked,
+                    TripDescription = $"{b.Ride.StartLocation} ➝ {b.Ride.EndLocation}",
+                    // On détourne ce champ pour envoyer le statut (Accepted, Pending, etc.)
+                    PackageDescription = b.Status.ToString()
+                })
+                .ToListAsync();
+
+            return Results.Ok(bookings);
+        });
     }
 }

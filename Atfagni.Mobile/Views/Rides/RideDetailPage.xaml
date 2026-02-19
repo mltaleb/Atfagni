@@ -50,13 +50,35 @@
                 </Border>
 
                 <!-- Sélection de places -->
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
-                    <Label Text="Nombre de passagers :" VerticalOptions="Center" FontAttributes="Bold"/>
-                    <Stepper Minimum="1" Maximum="{Binding Ride.AvailableSeats}" Value="{Binding SeatsToBook}"/>
-                    <Label Text="{Binding SeatsToBook}" FontSize="20" VerticalOptions="Center" FontAttributes="Bold"/>
-                </HorizontalStackLayout>
+            <!-- Section de sélection de places avec une Grid pour l'alignement parfait -->
+            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10" Margin="0,10">
 
-                <!-- Bouton Réserver -->
+                <!-- 1. Le texte à gauche -->
+                <Label Grid.Column="0" 
+           Text="Nombre de passagers" 
+           VerticalOptions="Center" 
+           FontAttributes="Bold" 
+           TextColor="Black" 
+           FontSize="16"/>
+
+                <!-- 2. Le Stepper au milieu -->
+                <Stepper Grid.Column="1" 
+             Value="{Binding SeatsToBook, Mode=TwoWay}" 
+             Minimum="1" 
+             Maximum="{Binding Ride.AvailableSeats}" 
+             VerticalOptions="Center"/>
+
+                <!-- 3. Le Chiffre à droite avec une largeur fixe pour ne pas bouger -->
+                <Label Grid.Column="2" 
+           Text="{Binding SeatsToBook}" 
+           FontSize="22" 
+           FontAttributes="Bold" 
+           TextColor="#2196F3" 
+           VerticalOptions="Center" 
+           HorizontalTextAlignment="Center" 
+           WidthRequest="30"/>
+            </Grid>
+            <!-- Bouton Réserver -->
                 <Button Text="RÉSERVER MAINTENANT" 
                     Command="{Binding ConfirmBookingCommand}"
                     BackgroundColor="#2196F3" 

@@ -1,0 +1,41 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Bookings"
+             xmlns:dto="clr-namespace:Atfagni.Shared.DTOs;assembly=Atfagni.Shared"
+             x:DataType="vm:MyBookingsViewModel"
+             x:Class="Atfagni.Mobile.Views.Bookings.MyBookingsPage"
+             Title="Mes Réservations">
+
+    <RefreshView Command="{Binding LoadBookingsCommand}" IsRefreshing="{Binding IsBusy}">
+        <ScrollView Padding="20">
+            <VerticalStackLayout Spacing="20">
+
+                <Label Text="🚀 À VENIR" FontAttributes="Bold" TextColor="#2196F3"/>
+                <CollectionView ItemsSource="{Binding UpcomingBookings}">
+                    <CollectionView.EmptyView>
+                        <Label Text="Aucun voyage prévu" HorizontalOptions="Center" TextColor="Gray" Margin="0,10"/>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="dto:BookingRequestDto">
+                            <Border StrokeShape="RoundRectangle 10" Margin="0,5" Padding="15" BackgroundColor="White">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <VerticalStackLayout>
+                                        <Label Text="{Binding TripDescription}" FontAttributes="Bold" TextColor="Black"/>
+                                        <Label Text="{Binding PassengerName, StringFormat='Chauffeur: {0}'}" FontSize="12" TextColor="Gray"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="Confirmé" TextColor="Green" FontAttributes="Bold" VerticalOptions="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Label Text="⌛ PASSÉES" FontAttributes="Bold" TextColor="Gray" Margin="0,10,0,0"/>
+                <CollectionView ItemsSource="{Binding PastBookings}">
+                    <!-- Même template mais avec des couleurs plus ternes (gris) -->
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

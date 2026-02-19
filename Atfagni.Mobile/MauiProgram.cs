@@ -52,6 +52,8 @@ namespace Atfagni.Mobile
             builder.Services.AddTransient<Views.Rides.BookingHistoryPage>();
             builder.Services.AddTransient<RideDetailViewModel>();
             builder.Services.AddTransient<RideDetailPage>();
+            builder.Services.AddTransient<MyBookingsViewModel>();
+            builder.Services.AddTransient<MyBookingsPage>();
 
             // Profil
             builder.Services.AddTransient<ProfileViewModel>();

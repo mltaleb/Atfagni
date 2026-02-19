@@ -7,6 +7,7 @@
     xmlns:views="clr-namespace:Atfagni.Mobile.Views"
     xmlns:vauth="clr-namespace:Atfagni.Mobile.Views.Auth"
     xmlns:vrides="clr-namespace:Atfagni.Mobile.Views.Rides"
+    xmlns:vbookings="clr-namespace:Atfagni.Mobile.Views.Bookings"
     xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels"
     Shell.FlyoutBehavior="Disabled">
 
@@ -40,6 +41,10 @@
         <Tab Title="Mes Trajets" Icon="car.png" IsVisible="{Binding IsDriver}">
              
             <ShellContent Route="MyRidesPage" ContentTemplate="{DataTemplate vrides:MyRidesPage}" />
+        </Tab>
+        <Tab Title="Mes Trajets" Icon="car.png" IsVisible="{Binding IsPassenger}">
+
+            <ShellContent Route="MyRidesPage" ContentTemplate="{DataTemplate vbookings:MyBookingsPage}" />
         </Tab>
 
         <!-- Onglet 3 : Profil (J'ai corrigé la syntaxe {DataTemplate}) -->
