@@ -5,6 +5,7 @@ public class User
     public int Id { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
+    public string? ProfilePictureBase64 { get; set; } // On stocke l'image ici
     public string PasswordHash { get; set; } = string.Empty;
     public string Role { get; set; } = "Passenger";
 

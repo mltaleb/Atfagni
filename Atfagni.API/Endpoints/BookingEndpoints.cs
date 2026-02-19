@@ -96,20 +96,18 @@ public static class BookingEndpoints
                 .Include(b => b.Ride)
                 .Where(b => b.Ride.DriverId == driverId)
                 .OrderByDescending(b => b.BookedAt) // Les plus récents en premier
+                                                    // Pour le passager ET le chauffeur, on mappe comme ceci :
                 .Select(b => new BookingRequestDto
                 {
                     Id = b.Id,
-                    PassengerName = b.Passenger.FullName,
-                    PassengerPhone = b.Passenger.PhoneNumber,
-                    Type = b.Type.ToString(),
-                    SeatsRequested = b.SeatsBooked,
-                    TripDescription = $"{b.Ride.StartLocation} -> {b.Ride.EndLocation}",
-                    // On ajoute une propriété 'StatusString' au DTO si besoin, 
-                    // ou on utilise un champ existant pour afficher "Accepted", "Rejected"...
-                    PackageDescription = b.Status.ToString() // Astuce rapide pour afficher le statut
+                    PassengerName = b.Ride.Driver.FullName, // ou b.Passenger.FullName
+                    PackageDescription = b.PackageDetails,  // On garde le texte du colis
+                    Status = b.Status,                      // On envoie l'Enum (ex: BookingStatus.Accepted)
+                    PassengerPhone = b.Ride.Driver.PhoneNumber,
+                    TripDescription = $"{b.Ride.StartLocation} ➝ {b.Ride.EndLocation}",
+                    Type = b.Type.ToString()
                 })
                 .ToListAsync();
-
             return Results.Ok(history);
         });
         // 5. RÉSERVATIONS D'UN PASSAGER (Historique + À venir)
@@ -120,17 +118,16 @@ public static class BookingEndpoints
                 .ThenInclude(r => r.Driver) // Pour avoir le nom du chauffeur
                 .Where(b => b.PassengerId == passengerId)
                 .OrderByDescending(b => b.Ride.DepartureTime) // Trier par date de voyage
+                                                              // Pour le passager ET le chauffeur, on mappe comme ceci :
                 .Select(b => new BookingRequestDto
                 {
                     Id = b.Id,
-                    // Pour le passager, on met le nom du CHAUFFEUR dans le champ PassengerName du DTO
-                    PassengerName = b.Ride.Driver.FullName,
+                    PassengerName = b.Ride.Driver.FullName, // ou b.Passenger.FullName
+                    PackageDescription = b.PackageDetails,  // On garde le texte du colis
+                    Status = b.Status,                      // On envoie l'Enum (ex: BookingStatus.Accepted)
                     PassengerPhone = b.Ride.Driver.PhoneNumber,
-                    Type = b.Type.ToString(),
-                    SeatsRequested = b.SeatsBooked,
                     TripDescription = $"{b.Ride.StartLocation} ➝ {b.Ride.EndLocation}",
-                    // On détourne ce champ pour envoyer le statut (Accepted, Pending, etc.)
-                    PackageDescription = b.Status.ToString()
+                    Type = b.Type.ToString()
                 })
                 .ToListAsync();
 
