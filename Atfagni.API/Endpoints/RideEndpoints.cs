@@ -152,8 +152,20 @@ public static class RideEndpoints
             return Results.Ok(rides);
         });
         // GET /api/cities
-        group.MapGet("/cities", async (AppDbContext db) =>
-    await db.Cities.OrderBy(c => c.Name).Select(c => c.Name).ToListAsync());
+        // GET /api/rides/cities
+        group.MapGet("/cities", () =>
+        {
+            // C'est ici, sur ton serveur, que se trouve la liste "Maître".
+            // Demain, tu pourras modifier cette liste sans toucher à l'appli mobile !
+            var cloudCities = new List<string>
+        {
+        "Alger", "Alicante", "Bechar", "Bordeaux", "Ghardaia",
+        "Lyon", "Madrid", "Marseille", "Nouadhibou", "Nouakchott",
+        "Oran", "Paris", "Rabouni", "Tindouf", "Toulouse", "Zouerate"
+        };
+
+            return Results.Ok(cloudCities.OrderBy(c => c));
+        });
         // GET /api/rides/latest
         group.MapGet("/latest", async (AppDbContext db) =>
         {

@@ -21,7 +21,7 @@ public partial class HomePage : ContentPage
         if (_viewModel.InitializeCommand.CanExecute(null))
         {
             await _viewModel.InitializeCommand.ExecuteAsync(null);
-            await _viewModel.GetLatestRidesCommand.ExecuteAsync(null);
+            
         }
     }
 }

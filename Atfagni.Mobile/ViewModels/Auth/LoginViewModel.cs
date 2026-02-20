@@ -2,7 +2,7 @@
 using Atfagni.Shared.DTOs;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using static Microsoft.Maui.ApplicationModel.Permissions;
+
 
 namespace Atfagni.Mobile.ViewModels.Auth;
 
@@ -13,49 +13,64 @@ public partial class LoginViewModel : ObservableObject
     [ObservableProperty] private string phone;
     [ObservableProperty] private string password;
 
+    // Propriété indispensable pour le LoadingOverlay
+    [ObservableProperty] private bool isBusy;
+
     public LoginViewModel(ApiService apiService) => _apiService = apiService;
 
     [RelayCommand]
     private async Task Login()
     {
-        // 1. Validation des champs avec message utilisateur
+        // Sécurité anti-double clic
+        if (IsBusy) return;
+
+        // 1. Validation des champs
         if (string.IsNullOrWhiteSpace(Phone) || string.IsNullOrWhiteSpace(Password))
         {
-            await Shell.Current.DisplayAlertAsync("Erreur", "Veuillez remplir tous les champs.", "OK");
+            await Shell.Current.DisplayAlert("Erreur", "Veuillez remplir tous les champs.", "OK");
             return;
         }
 
         try
         {
+            // ON ACTIVE LE SPINNER
+            IsBusy = true;
+
             var request = new LoginRequest { PhoneNumber = Phone, Password = Password };
 
-            // 2. Appel à l'API
+            // 2. Appel à l'API (Cela peut prendre du temps sur Render)
             var user = await _apiService.LoginAsync(request);
 
-            // 3. VÉRIFICATION D'ABORD !
+            // 3. VÉRIFICATION
             if (user != null)
             {
-                // Maintenant on peut utiliser 'user' sans danger
-                Console.WriteLine($"Connexion réussie : {user.FullName}");
-
                 Preferences.Set("UserId", user.Id.ToString());
                 Preferences.Set("UserRole", user.Role);
                 Preferences.Set("UserName", user.FullName);
+                Preferences.Set("UserPhone", user.PhoneNumber); // Utile pour le profil
 
-                // Redirection vers l'accueil
                 await Shell.Current.GoToAsync("//HomePage");
             }
             else
             {
-                // Si user est null, c'est que les identifiants sont faux ou le serveur injoignable
-                await Shell.Current.DisplayAlertAsync("Échec", "Numéro ou mot de passe incorrect.", "OK");
+                await Shell.Current.DisplayAlert("Échec", "Numéro ou mot de passe incorrect.", "OK");
             }
         }
         catch (Exception ex)
         {
-            // 4. Filet de sécurité : Si ça plante, on affiche l'erreur au lieu de fermer l'appli
             Console.WriteLine($"CRASH LOGIN : {ex.Message}");
-            await Shell.Current.DisplayAlertAsync("Erreur Technique", "Une erreur est survenue : " + ex.Message, "OK");
+            await Shell.Current.DisplayAlert("Erreur Technique", "Vérifiez votre connexion internet.", "OK");
         }
+        finally
+        {
+            // ON CACHE LE SPINNER (toujours exécuté, même en cas d'erreur)
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task GoToRegister()
+    {
+        await Shell.Current.GoToAsync("RegisterPage");
     }
 }

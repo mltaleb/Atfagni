@@ -7,4 +7,6 @@ public class UserDto
     public string Role { get; set; } = string.Empty; // "Driver" ou "Passenger"
     public string PhoneNumber { get; set; } = string.Empty;
     public decimal WalletBalance { get; set; }
+    public string? ProfilePictureBase64 { get; set; } // Champ ajouté
+
 }

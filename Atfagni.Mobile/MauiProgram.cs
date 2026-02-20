@@ -31,7 +31,7 @@ namespace Atfagni.Mobile
 #endif
             builder.Services.AddSingleton<ApiService>();
             builder.Services.AddSingleton<CityService>();
-
+            builder.Services.AddSingleton<DatabaseService>();
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<MainViewModel>();
             builder.Services.AddTransient<RegisterViewModel>();
@@ -58,7 +58,8 @@ namespace Atfagni.Mobile
             // Profil
             builder.Services.AddTransient<ProfileViewModel>();
             builder.Services.AddTransient<ProfilePage>();
-
+            builder.Services.AddTransient<CitySearchViewModel>();
+            builder.Services.AddTransient<CitySearchPage>();
             return builder.Build();
         }
     }

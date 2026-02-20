@@ -6,23 +6,30 @@
              Title="Mon Profil">
 
     <VerticalStackLayout Padding="20" Spacing="20">
-        <!-- Avatar (Image par défaut) -->
-        <Image Source="user_circle.png" HeightRequest="100" HorizontalOptions="Center"/>
 
-        <!-- Infos -->
-        <VerticalStackLayout Spacing="5">
-            <Label Text="{Binding UserName}" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center"/>
-            <Label Text="{Binding UserRole}" TextColor="#2196F3" HorizontalOptions="Center"/>
-            <Label Text="{Binding UserPhone}" TextColor="Gray" HorizontalOptions="Center"/>
+        <!-- Zone Photo avec clic pour changer -->
+        <Grid HorizontalOptions="Center">
+            <Border StrokeShape="RoundRectangle 60" HeightRequest="120" WidthRequest="120" Padding="0">
+                <Image Source="{Binding ProfileImageSource}" Aspect="AspectFill" HeightRequest="120" WidthRequest="120" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ChangePhotoCommand}" />
+                </Border.GestureRecognizers>
+            </Border>
+            <Label Text="📷" HorizontalOptions="End" VerticalOptions="End" FontSize="20" Margin="0,0,10,10" />
+        </Grid>
+
+        <VerticalStackLayout Spacing="15">
+            <Entry Placeholder="Nom complet" Text="{Binding FullName}" TextColor="Black" />
+            <Entry Placeholder="Téléphone" Text="{Binding PhoneNumber}" Keyboard="Telephone" TextColor="Black" />
+
+            <Button Text="ENREGISTRER LES MODIFICATIONS" 
+                Command="{Binding UpdateProfileCommand}"
+                BackgroundColor="#2196F3" CornerRadius="10" HeightRequest="50" />
         </VerticalStackLayout>
 
-        <BoxView HeightRequest="1" Color="LightGray" Margin="0,10"/>
+        <BoxView HeightRequest="1" Color="LightGray" />
 
-        <!-- Bouton Déconnexion -->
-        <Button Text="Se Déconnecter" 
-                BackgroundColor="#FF5252" 
-                TextColor="White"
-                Command="{Binding LogoutCommand}"
-                />
+        <Button Text="Se Déconnecter" Command="{Binding LogoutCommand}" 
+            BackgroundColor="Transparent" TextColor="Red" />
     </VerticalStackLayout>
 </ContentPage>

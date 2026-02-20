@@ -250,4 +250,19 @@ public class ApiService
             return new List<BookingRequestDto>();
         }
     }
+    public async Task<bool> UpdateProfileAsync(UserDto userDto)
+    {
+        try
+        {
+            // On envoie les données à l'endpoint : /api/users/profile/{id}
+            var response = await _httpClient.PutAsJsonAsync($"/api/users/profile/{userDto.Id}", userDto);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur Update Profile: {ex.Message}");
+            return false;
+        }
+    }
 }

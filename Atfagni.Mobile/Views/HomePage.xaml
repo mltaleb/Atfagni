@@ -5,6 +5,7 @@
              xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels"
              xmlns:dto="clr-namespace:Atfagni.Shared.DTOs;assembly=Atfagni.Shared"
              x:DataType="vm:HomeViewModel"
+             xmlns:controls="clr-namespace:Atfagni.Mobile.Controls"
              x:Class="Atfagni.Mobile.Views.HomePage"
              xmlns:converters="clr-namespace:Atfagni.Mobile.Converters"
              Title="Atfagni"
@@ -155,32 +156,46 @@
 
                     <VerticalStackLayout Spacing="15">
 
-                        <!-- PICKER DÉPART -->
+                        <!-- ZONE DÉPART -->
                         <VerticalStackLayout Spacing="5">
                             <Label Text="DÉPART" FontSize="10" FontAttributes="Bold" TextColor="Gray" Margin="5,0"/>
-                            <Border Stroke="#F0F0F0" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="10,0">
-                                <Picker Title="Choisir une ville" 
-                            ItemsSource="{Binding DepartureCities}" 
-                            SelectedItem="{Binding SelectedDeparture}"
-                            TextColor="Black"
-                            TitleColor="Gray"
-                            FontSize="16"/>
+
+                            <Border Stroke="#F0F0F0" StrokeThickness="1" StrokeShape="RoundRectangle 10" BackgroundColor="#FAFAFA" Padding="15">
+                                <!-- C'EST ICI QU'ON APPELLE LA COMMANDE -->
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenCityPickerCommand}" CommandParameter="Departure" />
+                                </Border.GestureRecognizers>
+
+                                <Grid ColumnDefinitions="30, *">
+                                    <Label Text="📍" VerticalOptions="Center" />
+                                    <!-- On affiche la ville sélectionnée ou un texte par défaut -->
+                                    <Label Grid.Column="1" 
+                   Text="{Binding SelectedDeparture, TargetNullValue='partez-vous ?'}" 
+                   TextColor="{Binding SelectedDeparture, Converter={StaticResource StringToColorConverter}}"
+                   FontSize="16" VerticalOptions="Center" />
+                                </Grid>
                             </Border>
                         </VerticalStackLayout>
 
-                        <!-- PICKER ARRIVÉE -->
-                        <VerticalStackLayout Spacing="5">
+                        <!-- ZONE ARRIVÉE -->
+                        <VerticalStackLayout Spacing="5" Margin="0,10,0,0">
                             <Label Text="ARRIVÉE" FontSize="10" FontAttributes="Bold" TextColor="Gray" Margin="5,0"/>
-                            <Border Stroke="#F0F0F0" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="10,0">
-                                <Picker Title="Choisir une ville" 
-                            ItemsSource="{Binding ArrivalCities}" 
-                            SelectedItem="{Binding SelectedArrival}"
-                            TextColor="Black"
-                            TitleColor="Gray"
-                            FontSize="16"/>
+
+                            <Border Stroke="#F0F0F0" StrokeThickness="1" StrokeShape="RoundRectangle 10" BackgroundColor="#FAFAFA" Padding="15">
+                                <!-- APPEL DE LA COMMANDE POUR L'ARRIVÉE -->
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenCityPickerCommand}" CommandParameter="Arrival" />
+                                </Border.GestureRecognizers>
+
+                                <Grid ColumnDefinitions="30, *">
+                                    <Label Text="🏁" VerticalOptions="Center" />
+                                    <Label Grid.Column="1" 
+                   Text="{Binding SelectedArrival, TargetNullValue='Où allez-vous ?'}" 
+                   TextColor="{Binding SelectedArrival, Converter={StaticResource StringToColorConverter}}"
+                   FontSize="16" VerticalOptions="Center" />
+                                </Grid>
                             </Border>
                         </VerticalStackLayout>
-
                         <!-- DATE -->
                         <VerticalStackLayout Spacing="5">
                             <Label Text="DATE" FontSize="10" FontAttributes="Bold" TextColor="Gray" Margin="5,0"/>
@@ -247,5 +262,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </Grid>
+        <controls:LoadingOverlay IsBusy="{Binding IsBusy}" 
+                         LoadingMessage="chercher des trajets..." />
     </Grid>
 </ContentPage>

@@ -3,18 +3,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Atfagni.Mobile.Views.Auth.LoginPage"
              xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Auth"
+             xmlns:controls="clr-namespace:Atfagni.Mobile.Controls"
              x:DataType="vm:LoginViewModel"
              Title="LoginPage">
-    <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
-        <Label Text="Connexion" FontSize="32" FontAttributes="Bold" HorizontalOptions="Center" />
+    <Grid>
 
-        <Entry Placeholder="Numéro de téléphone" Text="{Binding Phone}" Keyboard="Telephone" />
-        <Entry Placeholder="Mot de passe" Text="{Binding Password}" IsPassword="True" />
+        <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center" >
+            <Label Text="Connexion" FontSize="32" FontAttributes="Bold" HorizontalOptions="Center" />
 
-        <Button Text="SE CONNECTER" Command="{Binding LoginCommand}" BackgroundColor="#2196F3" />
+            <Entry Placeholder="Numéro de téléphone" Text="{Binding Phone}" Keyboard="Telephone" />
+            <Entry Placeholder="Mot de passe" Text="{Binding Password}" IsPassword="True" />
 
-        <Button Text="Pas encore de compte ? S'inscrire" 
-            Command="{Binding GoToRegisterCommand}" 
-            BackgroundColor="Transparent" TextColor="Gray" />
-    </VerticalStackLayout>
+            <Button Text="SE CONNECTER" Command="{Binding LoginCommand}" BackgroundColor="#2196F3" />
+
+            <Button Text="Pas encore de compte ? S'inscrire" 
+        Command="{Binding GoToRegisterCommand}" 
+        BackgroundColor="Transparent" TextColor="Gray" />
+        </VerticalStackLayout>
+
+
+        <controls:LoadingOverlay IsBusy="{Binding IsBusy}" 
+                                 LoadingMessage="Connexion en cours..." />
+    </Grid>
+    
 </ContentPage>

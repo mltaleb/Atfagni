@@ -2,10 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Bookings"
              xmlns:dto="clr-namespace:Atfagni.Shared.DTOs;assembly=Atfagni.Shared"
+             xmlns:controls="clr-namespace:Atfagni.Mobile.Controls"
              x:DataType="vm:MyBookingsViewModel"
              x:Class="Atfagni.Mobile.Views.Bookings.MyBookingsPage"
              Title="Mes Réservations">
-
+    <Grid>
+  
     <RefreshView Command="{Binding LoadBookingsCommand}" IsRefreshing="{Binding IsBusy}">
         <ScrollView Padding="20">
             <VerticalStackLayout Spacing="20">
@@ -38,4 +40,7 @@
             </VerticalStackLayout>
         </ScrollView>
     </RefreshView>
+        <controls:LoadingOverlay IsBusy="{Binding IsBusy}" 
+                           LoadingMessage="Rechargement des bookings" />
+    </Grid>
 </ContentPage>

@@ -103,6 +103,25 @@ public static class UserEndpoints
                 NextRide = nextRide,
                 CompletedRidesCount = completedCount
             });
+
+        });
+        // PUT /api/users/profile/{id}
+        group.MapPut("/profile/{id}", async (int id, UserDto updateDto, AppDbContext db) =>
+        {
+            var user = await db.Users.FindAsync(id);
+            if (user == null) return Results.NotFound();
+
+            user.FullName = updateDto.FullName;
+            user.PhoneNumber = updateDto.PhoneNumber;
+
+            // Si une nouvelle photo est envoyée
+            if (!string.IsNullOrEmpty(updateDto.ProfilePictureBase64))
+            {
+                user.ProfilePictureBase64 = updateDto.ProfilePictureBase64;
+            }
+
+            await db.SaveChangesAsync();
+            return Results.Ok(new { Message = "Profil mis à jour" });
         });
     }
 }
