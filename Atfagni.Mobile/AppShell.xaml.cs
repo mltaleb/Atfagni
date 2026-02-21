@@ -23,6 +23,7 @@ namespace Atfagni.Mobile
             Routing.RegisterRoute("BookingHistoryPage", typeof(Views.Rides.BookingHistoryPage));
             Routing.RegisterRoute("RideDetailPage", typeof(RideDetailPage));
             Routing.RegisterRoute("MyBookingsPage", typeof(MyBookingsPage));
+            
         }
     }
 }

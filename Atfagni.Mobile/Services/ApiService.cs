@@ -196,14 +196,18 @@ public class ApiService
         }
         catch { return new List<RideDto>(); }
     }
-    public async Task<List<string>> GetCitiesAsync()
+    public async Task<List<string>> GetCloudCitiesAsync()
     {
         try
         {
             return await _httpClient.GetFromJsonAsync<List<string>>("/api/rides/cities")
                    ?? new List<string>();
         }
-        catch { return new List<string>(); }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur récupération villes: {ex.Message}");
+            return new List<string>();
+        }
     }
     public async Task<List<BookingRequestDto>> GetBookingHistoryAsync(int driverId)
     {

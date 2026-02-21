@@ -46,7 +46,10 @@
 
             <ShellContent Route="MyRidesPage" ContentTemplate="{DataTemplate vbookings:MyBookingsPage}" />
         </Tab>
-
+        <!-- NOUVEL ONGLET : DEMANDES (Uniquement pour Driver) -->
+        <Tab Title="Demandes" Icon="requests.png" IsVisible="{Binding IsDriver}">
+            <ShellContent Route="DriverRequestsPage" ContentTemplate="{DataTemplate vbookings:DriverRequestsPage}" />
+        </Tab>
         <!-- Onglet 3 : Profil (J'ai corrigé la syntaxe {DataTemplate}) -->
         <Tab Title="Profil" Icon="user.png">
             <ShellContent Route="ProfilePage" ContentTemplate="{DataTemplate views:ProfilePage}" />

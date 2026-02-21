@@ -2,33 +2,51 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
               xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Bookings"
+              xmlns:dto="clr-namespace:Atfagni.Shared.DTOs;assembly=Atfagni.Shared"
               x:DataType="vm:DriverRequestsViewModel"
              x:Class="Atfagni.Mobile.Views.Bookings.DriverRequestsPage"
-             Title="DriverRequestsPage">
-    <RefreshView Command="{Binding LoadRequestsCommand}">
-        <CollectionView ItemsSource="{Binding Requests}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border Margin="10" Padding="10" >
-                        <VerticalStackLayout>
-                            <Label Text="{Binding PassengerName}" FontAttributes="Bold" FontSize="18"/>
+             Title="Demande Passagers" BackgroundColor="#F8F9FA">
+   
+        <RefreshView Command="{Binding LoadRequestsCommand}" IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding Requests}" Margin="15">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="Center" Spacing="10" Padding="50">
+                        <Label Text="🎉" FontSize="50" HorizontalOptions="Center"/>
+                        <Label Text="Aucune nouvelle demande" HorizontalOptions="Center" TextColor="Gray"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
 
-                            <!-- Affiche "Colis" ou "Passager" -->
-                            <Label Text="{Binding Type}" TextColor="Blue" />
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dto:BookingRequestDto">
+                        <Border Margin="0,0,0,12" Padding="15" StrokeShape="RoundRectangle 12" BackgroundColor="White" StrokeThickness="0">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Opacity="0.05" Radius="5"/>
+                            </Border.Shadow>
 
-                            <!-- Affiche la description seulement si c'est un colis -->
-                            <Label Text="{Binding PackageDescription}" IsVisible="{Binding PackageDescription, Converter={StaticResource IsNotNullConverter}}" FontAttributes="Italic"/>
+                            <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, Auto">
+                                <!-- Infos Passager -->
+                                <VerticalStackLayout Grid.Row="0">
+                                    <Label Text="{Binding PassengerName}" FontSize="18" FontAttributes="Bold" TextColor="Black"/>
+                                    <Label Text="{Binding Type, StringFormat='Type: {0}'}" FontSize="12" TextColor="#2196F3"/>
+                                </VerticalStackLayout>
 
-                            <Label Text="{Binding TripDescription}" TextColor="Gray"/>
+                                <!-- Places Demandées -->
+                                <Label Grid.Column="1" Text="{Binding SeatsRequested, StringFormat='{0} pers.'}" FontAttributes="Bold" TextColor="Gray"/>
 
-                            <HorizontalStackLayout Spacing="20" Margin="0,10,0,0">
-                                <Button Text="REFUSER" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverRequestsViewModel}}, Path=RejectCommand}" CommandParameter="{Binding .}" BackgroundColor="Red" />
-                                <Button Text="ACCEPTER" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverRequestsViewModel}}, Path=AcceptCommand}" CommandParameter="{Binding .}" BackgroundColor="Green" />
-                            </HorizontalStackLayout>
-                        </VerticalStackLayout>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-    </RefreshView>
-</ContentPage>
+                                <!-- Trajet -->
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding TripDescription}" Margin="0,10" TextColor="Gray"/>
+
+                                <!-- Boutons Action -->
+                                <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnDefinitions="*, *" ColumnSpacing="15" Margin="0,10,0,0">
+                                    <Button Grid.Column="0" Text="REFUSER" BackgroundColor="#FFEBEE" TextColor="#D32F2F" CornerRadius="8"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverRequestsViewModel}}, Path=RejectCommand}" CommandParameter="{Binding .}"/>
+                                    <Button Grid.Column="1" Text="ACCEPTER" BackgroundColor="#E8F5E9" TextColor="#388E3C" CornerRadius="8"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverRequestsViewModel}}, Path=AcceptCommand}" CommandParameter="{Binding .}"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </ContentPage>

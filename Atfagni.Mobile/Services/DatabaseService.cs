@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Atfagni.Mobile.Models.Local;
+using SQLite;
 
 namespace Atfagni.Mobile.Services;
 
@@ -19,6 +20,8 @@ public class DatabaseService
         await _database.CreateTableAsync<Models.Local.LocalBooking>();
         await _database.CreateTableAsync<Models.Local.LocalRide>();
         await _database.CreateTableAsync<Models.Local.LocalCity>();
+        await _database.CreateTableAsync<LocalPublishedRide>();
+        await _database.CreateTableAsync<LocalDriverRequest>();
     }
 
     // --- OPÉRATIONS RÉSERVATIONS ---
@@ -76,6 +79,25 @@ public class DatabaseService
 
         return results;
     }
+    // Dans ton DatabaseService.cs
+
+    public async Task SyncCitiesFromCloudAsync(List<string> cloudCities)
+    {
+        await Init();
+
+        if (cloudCities == null || !cloudCities.Any()) return;
+
+        // 1. On transforme la liste de string en objets SQLite
+        var localCities = cloudCities.Select(c => new Models.Local.LocalCity { Name = c }).ToList();
+
+        // 2. On vide l'ancienne liste
+        await _database.DeleteAllAsync<Models.Local.LocalCity>();
+
+        // 3. On insère la nouvelle
+        await _database.InsertAllAsync(localCities);
+
+        Console.WriteLine("✅ Villes synchronisées avec succès depuis le Cloud !");
+    }
     public async Task SaveCitiesAsync(List<Models.Local.LocalCity> cities)
     {
         await Init();
@@ -83,12 +105,64 @@ public class DatabaseService
         await _database.InsertAllAsync(cities);
     }
 
-    public async Task<List<Models.Local.LocalCity>> GetCitiesAsync(string filter = "")
+    public async Task<List<LocalCity>> GetCitiesAsync()
+    {
+        try
+        {
+            await Init(); // Ouvre la connexion
+            var list = await _database.Table<LocalCity>().ToListAsync();
+            return list ?? new List<LocalCity>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur SQLite GetCities: {ex.Message}");
+            return new List<LocalCity>();
+        }
+    }
+    // --- GESTION DES TRAJETS PUBLIÉS ---
+    public async Task SaveMyRidesAsync(List<LocalPublishedRide> rides)
     {
         await Init();
-        var query = _database.Table<Models.Local.LocalCity>();
-        if (!string.IsNullOrWhiteSpace(filter))
-            query = query.Where(c => c.Name.ToLower().Contains(filter.ToLower()));
-        return await query.OrderBy(c => c.Name).ToListAsync();
+        await _database.DeleteAllAsync<LocalPublishedRide>();
+        await _database.InsertAllAsync(rides);
+    }
+
+    public async Task<List<LocalPublishedRide>> GetMyRidesAsync()
+    {
+        await Init();
+        return await _database.Table<LocalPublishedRide>().ToListAsync();
+    }
+
+    // --- GESTION DES DEMANDES PASSAGERS ---
+    public async Task SaveDriverRequestsAsync(List<LocalDriverRequest> requests)
+    {
+        await Init();
+        await _database.DeleteAllAsync<LocalDriverRequest>();
+        await _database.InsertAllAsync(requests);
+    }
+
+    public async Task<List<LocalDriverRequest>> GetDriverRequestsAsync()
+    {
+        await Init();
+        return await _database.Table<LocalDriverRequest>().ToListAsync();
+    }
+    // Supprime une demande spécifique du cache (quand elle est traitée)
+    public async Task DeleteLocalRequestAsync(int bookingId)
+    {
+        try
+        {
+            // 1. On s'assure que la connexion à la base est ouverte
+            await Init();
+
+            // 2. On supprime l'entrée par son ID (Clé primaire)
+            // On précise bien le type <LocalDriverRequest>
+            await _database.DeleteAsync<Models.Local.LocalDriverRequest>(bookingId);
+
+            Console.WriteLine($"[SQLITE] Demande #{bookingId} supprimée du cache local.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SQLITE ERROR] Échec de suppression de la demande: {ex.Message}");
+        }
     }
 }

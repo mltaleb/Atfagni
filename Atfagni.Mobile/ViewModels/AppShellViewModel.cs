@@ -7,7 +7,7 @@ public partial class AppShellViewModel : ObservableObject
     [ObservableProperty]
     private bool isDriver; // Sera True si Chauffeur, False si Passager
     [ObservableProperty]
-    private bool isPassager; // Sera True si Chauffeur, False si Passager
+    private bool isPassager; 
 
     public AppShellViewModel()
     {
@@ -18,7 +18,8 @@ public partial class AppShellViewModel : ObservableObject
     public void CheckRole()
     {
         string role = Preferences.Get("UserRole", "Passenger");
-        IsDriver = (role == "Driver");
+        string role2 = Preferences.Get("UserRole", "Driver");
+        IsDriver = (role2 == "Driver");
         IsPassager = (role == "Passenger");
     }
 }

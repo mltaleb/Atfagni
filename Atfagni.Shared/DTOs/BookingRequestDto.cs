@@ -17,5 +17,7 @@ namespace Atfagni.Shared.DTOs
 
         public int SeatsRequested { get; set; }
         public string TripDescription { get; set; } = string.Empty;
+
+        public DateTime DepartureDate { get; set; }
     }
 }

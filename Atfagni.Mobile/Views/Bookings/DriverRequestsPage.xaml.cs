@@ -4,9 +4,23 @@ namespace Atfagni.Mobile.Views.Bookings;
 
 public partial class DriverRequestsPage : ContentPage
 {
-	public DriverRequestsPage(DriverRequestsViewModel ViewModel)
+    private readonly DriverRequestsViewModel _viewModel;
+    public DriverRequestsPage(DriverRequestsViewModel viewModel)
 	{
 		InitializeComponent();
-		BindingContext = ViewModel;
-	}
+		
+        _viewModel = viewModel;
+        BindingContext = _viewModel;
+    }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // On lance la commande de chargement
+        // On vérifie si elle n'est pas déjà en train de tourner (IsBusy)
+        if (_viewModel.LoadRequestsCommand.CanExecute(null))
+        {
+            await _viewModel.LoadRequestsCommand.ExecuteAsync(null);
+        }
+    }
 }

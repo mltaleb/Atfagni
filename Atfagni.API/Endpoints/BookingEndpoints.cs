@@ -113,21 +113,24 @@ public static class BookingEndpoints
         // 5. RÉSERVATIONS D'UN PASSAGER (Historique + À venir)
         group.MapGet("/passenger/{passengerId}", async (int passengerId, AppDbContext db) =>
         {
+            // Dans l'endpoint GET /api/bookings/passenger/{passengerId}
             var bookings = await db.Bookings
-                .Include(b => b.Ride)
-                .ThenInclude(r => r.Driver) // Pour avoir le nom du chauffeur
+                .Include(b => b.Ride).ThenInclude(r => r.Driver)
                 .Where(b => b.PassengerId == passengerId)
-                .OrderByDescending(b => b.Ride.DepartureTime) // Trier par date de voyage
-                                                              // Pour le passager ET le chauffeur, on mappe comme ceci :
                 .Select(b => new BookingRequestDto
                 {
                     Id = b.Id,
-                    PassengerName = b.Ride.Driver.FullName, // ou b.Passenger.FullName
-                    PackageDescription = b.PackageDetails,  // On garde le texte du colis
-                    Status = b.Status,                      // On envoie l'Enum (ex: BookingStatus.Accepted)
-                    PassengerPhone = b.Ride.Driver.PhoneNumber,
+                    PassengerName = b.Ride.Driver.FullName,
+                    // LOGIQUE DE PROTECTION : On ne donne le numéro que si accepté !
+                    PassengerPhone = b.Status == BookingStatus.Accepted
+                                     ? b.Ride.Driver.PhoneNumber
+                                     : "Numéro masqué",
+                    Type = b.Type.ToString(),
+                    SeatsRequested = b.SeatsBooked,
                     TripDescription = $"{b.Ride.StartLocation} ➝ {b.Ride.EndLocation}",
-                    Type = b.Type.ToString()
+                    Status = b.Status,
+                    PackageDescription = b.PackageDetails,
+                    DepartureDate = b.Ride.DepartureTime
                 })
                 .ToListAsync();
 

@@ -1,57 +1,113 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Atfagni.Mobile.Services;
+using Atfagni.Shared.DTOs; // Important !
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
-using Atfagni.Mobile.Services;
-using Atfagni.Shared.DTOs; // Important !
+using Atfagni.Mobile.Models.Local;
 
 namespace Atfagni.Mobile.ViewModels.Bookings;
 
 public partial class DriverRequestsViewModel : ObservableObject
 {
     private readonly ApiService _apiService;
+    private readonly DatabaseService _dbService;
 
-    // On utilise le DTO partagé ici
     public ObservableCollection<BookingRequestDto> Requests { get; } = new();
+    [ObservableProperty] bool isBusy;
 
-    public DriverRequestsViewModel(ApiService apiService)
+    public DriverRequestsViewModel(ApiService api, DatabaseService db)
     {
-        _apiService = apiService;
+        _apiService = api;
+        _dbService = db;
     }
 
     [RelayCommand]
     public async Task LoadRequests()
     {
-        string driverId = Preferences.Get("UserId", "0");
-        if (driverId == "0") return;
-
-        var list = await _apiService.GetPendingRequestsAsync(int.Parse(driverId));
-
-        Requests.Clear();
-        foreach (var req in list)
+        try
         {
-            Requests.Add(req);
+            // 1. CHARGER LE CACHE SQLITE
+            var cached = await _dbService.GetDriverRequestsAsync();
+            UpdateUI(cached);
+
+            // 2. LOGIQUE RÉSEAU (Si > 2 min ou vide)
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            {
+                var lastUpdate = Preferences.Get("LastRequestsUpdate", DateTime.MinValue);
+                if ((DateTime.Now - lastUpdate).TotalMinutes > 2 || !Requests.Any())
+                {
+                    await RefreshRequestsFromServer();
+                }
+            }
         }
+        finally { IsBusy = false; }
+    }
+
+    private async Task RefreshRequestsFromServer()
+    {
+        IsBusy = true;
+        int driverId = int.Parse(Preferences.Get("UserId", "0"));
+        var fresh = await _apiService.GetPendingRequestsAsync(driverId);
+
+        if (fresh != null)
+        {
+            // Sauvegarde SQLite
+            var locals = fresh.Select(r => new LocalDriverRequest
+            {
+                Id = r.Id,
+                PassengerName = r.PassengerName,
+                PassengerPhone = r.PassengerPhone,
+                TripDescription = r.TripDescription,
+                Type = r.Type,
+                PackageDescription = r.PackageDescription,
+                SeatsRequested = r.SeatsRequested
+            }).ToList();
+
+            await _dbService.SaveDriverRequestsAsync(locals);
+            Preferences.Set("LastRequestsUpdate", DateTime.Now);
+            UpdateUI(locals);
+        }
+        IsBusy = false;
+    }
+
+    private void UpdateUI(List<LocalDriverRequest> list)
+    {
+        MainThread.BeginInvokeOnMainThread(() => {
+            Requests.Clear();
+            foreach (var r in list)
+                Requests.Add(new BookingRequestDto
+                {
+                    Id = r.Id,
+                    PassengerName = r.PassengerName,
+                    TripDescription = r.TripDescription,
+                    Type = r.Type,
+                    PackageDescription = r.PackageDescription,
+                    SeatsRequested = r.SeatsRequested
+                });
+        });
     }
 
     [RelayCommand]
-    public async Task Accept(BookingRequestDto req)
-    {
-        bool success = await _apiService.RespondToBookingAsync(req.Id, true);
-        if (success)
-        {
-            Requests.Remove(req);
-            await Shell.Current.DisplayAlert("Succès", $"Réservation de {req.PassengerName} acceptée !", "OK");
-        }
-    }
+    async Task Accept(BookingRequestDto req) => await Respond(req, true);
 
     [RelayCommand]
-    public async Task Reject(BookingRequestDto req)
+    async Task Reject(BookingRequestDto req) => await Respond(req, false);
+
+    private async Task Respond(BookingRequestDto req, bool accept)
     {
-        bool success = await _apiService.RespondToBookingAsync(req.Id, false);
-        if (success)
+        if (IsBusy) return;
+        try
         {
-            Requests.Remove(req);
-            await Shell.Current.DisplayAlert("Info", "Réservation refusée.", "OK");
+            IsBusy = true;
+            bool success = await _apiService.RespondToBookingAsync(req.Id, accept);
+            if (success)
+            {
+                Requests.Remove(req);
+                // On met à jour le cache SQLite aussi
+                await _dbService.DeleteLocalRequestAsync(req.Id);
+                await Shell.Current.DisplayAlert("Succès", accept ? "Accepté" : "Refusé", "OK");
+            }
         }
+        finally { IsBusy = false; }
     }
 }

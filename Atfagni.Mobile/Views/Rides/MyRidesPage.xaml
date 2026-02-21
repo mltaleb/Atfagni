@@ -4,6 +4,7 @@
              xmlns:vm="clr-namespace:Atfagni.Mobile.ViewModels.Rides"
              xmlns:dto="clr-namespace:Atfagni.Shared.DTOs;assembly=Atfagni.Shared"
              x:DataType="vm:MyRidesViewModel"
+              xmlns:controls="clr-namespace:Atfagni.Mobile.Controls"
              x:Class="Atfagni.Mobile.Views.Rides.MyRidesPage"
              Title="Mes Trajets"
              BackgroundColor="#F5F5F5">
@@ -93,6 +94,7 @@
                 <Shadow Brush="#000" Opacity="0.3" Radius="10" Offset="0,5"/>
             </Button.Shadow>
         </Button>
-
+        <controls:LoadingOverlay IsBusy="{Binding IsBusy}" 
+                         LoadingMessage="" />
     </Grid>
 </ContentPage>

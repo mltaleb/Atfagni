@@ -23,14 +23,8 @@ public partial class MyBookingsViewModel : ObservableObject
         _apiService = apiService;
         _dbService = dbService;
     }
-    private void UpdateList(List<LocalBooking> list)
-    {
-        UpcomingBookings.Clear();
-        foreach (var b in list)
-        {
-            UpcomingBookings.Add(b.ToDto());
-        }
-    }
+  
+
     [RelayCommand]
     public async Task LoadBookings()
     {
@@ -38,40 +32,24 @@ public partial class MyBookingsViewModel : ObservableObject
 
         try
         {
-            IsBusy = true;
-            string userIdStr = Preferences.Get("UserId", "0");
-            int userId = int.Parse(userIdStr);
-
-            // --- 1. CHARGER LE CACHE (Instantané) ---
+            // --- 1. CHARGER LE CACHE (Instantané - Sans Spinner) ---
+            // On montre ce qu'on a déjà en mémoire pour que l'utilisateur ne voit pas un écran vide
             var cached = await _dbService.GetBookingsAsync();
             if (cached != null && cached.Any())
             {
                 UpdateList(cached);
             }
 
-            // --- 2. APPEL RÉSEAU (Si internet dispo) ---
+            // --- 2. DÉCISION D'APPEL RÉSEAU (Logique 5 minutes) ---
             if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
             {
-                var freshBookings = await _apiService.GetPassengerBookingsAsync(userId);
+                var lastUpdate = Preferences.Get("LastBookingsUpdate", DateTime.MinValue);
+                var elapsed = DateTime.Now - lastUpdate;
 
-                if (freshBookings != null)
+                // On ne rafraîchit que si > 5 min OU si on n'a absolument rien à afficher
+                if (elapsed.TotalMinutes > 5 || (cached == null || !cached.Any()))
                 {
-                    // Transformer les DTOs reçus en Modèles Locaux pour SQLite
-                    var localList = freshBookings.Select(b => new LocalBooking
-                    {
-                        Id = b.Id,
-                        DriverName = b.PassengerName, // Rappel: contient le nom du chauffeur
-                        DriverPhone = b.PassengerPhone,
-                        TripDescription = b.TripDescription,
-                        Status = b.Status.ToString(),
-                        PackageDescription = b.PackageDescription
-                    }).ToList();
-
-                    // --- 3. SAUVEGARDER DANS SQLITE ---
-                    await _dbService.SaveBookingsAsync(localList);
-
-                    // --- 4. METTRE À JOUR L'ÉCRAN AVEC LES DONNÉES FRAICHES ---
-                    UpdateList(localList);
+                    await RefreshBookingsFromServer();
                 }
             }
         }
@@ -79,9 +57,90 @@ public partial class MyBookingsViewModel : ObservableObject
         {
             Console.WriteLine($"Erreur LoadBookings: {ex.Message}");
         }
+        // Note: IsBusy est géré dans RefreshBookingsFromServer ou mis à false ici
+        finally { IsBusy = false; }
+    }
+
+    // Méthode dédiée pour la mise à jour réseau
+    private async Task RefreshBookingsFromServer()
+    {
+        try
+        {
+            IsBusy = true; // On affiche le spinner seulement pendant l'appel réseau
+
+            string userIdStr = Preferences.Get("UserId", "0");
+            int userId = int.Parse(userIdStr);
+
+            var freshBookings = await _apiService.GetPassengerBookingsAsync(userId);
+
+            if (freshBookings != null)
+            {
+                // Conversion pour SQLite
+                var localList = freshBookings.Select(b => new LocalBooking
+                {
+                    Id = b.Id,
+                    DriverName = b.PassengerName,
+                    DriverPhone = b.PassengerPhone,
+                    TripDescription = b.TripDescription,
+                    Status = b.Status.ToString(),
+                    PackageDescription = b.PackageDescription,
+                    DepartureDate = b.DepartureDate
+                }).ToList();
+
+                // Sauvegarde dans SQLite
+                await _dbService.SaveBookingsAsync(localList);
+
+                // Mise à jour de l'heure du cache
+                Preferences.Set("LastBookingsUpdate", DateTime.Now);
+
+                // Mise à jour UI
+                UpdateList(localList);
+            }
+        }
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    private void UpdateList(List<LocalBooking> list)
+    {
+        // Sécurité Thread UI pour MAUI
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            UpcomingBookings.Clear();
+            PastBookings.Clear();
+
+            foreach (var b in list)
+            {
+                var dto = b.ToDto();
+
+                // Tri simple : Si c'est Terminé ou Annulé -> Passé, sinon -> À venir
+                if (dto.Status == BookingStatus.Completed || dto.Status == BookingStatus.Cancelled || dto.Status == BookingStatus.Rejected)
+                {
+                    PastBookings.Add(dto);
+                }
+                else
+                {
+                    UpcomingBookings.Add(dto);
+                }
+            }
+        });
+    }
+    [RelayCommand]
+    private async Task CallDriver(string phoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(phoneNumber) || phoneNumber == "Numéro masqué")
+            return;
+
+        try
+        {
+            if (PhoneDialer.Default.IsSupported)
+                PhoneDialer.Default.Open(phoneNumber);
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Erreur", "Impossible d'ouvrir le téléphone.", "OK");
         }
     }
 }
